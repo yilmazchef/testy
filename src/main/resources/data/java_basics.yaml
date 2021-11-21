@@ -1,0 +1,200 @@
+---
+
+- header: JAVA_BASICS_01
+  content:
+    - |
+      Before you start:
+      if something is written in quotation marks("quote") then it means Java code.
+      What is the name for an application that changes a human-readable programming language into a machine-readable language?
+  weight: 1.0
+  orderNo: 1.1
+  tasks:
+    - value: Compiler
+      weight: 1.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: Converter
+      weight: 0.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: Encoder
+      weight: 0.00
+      orderNo: 1.3
+      type: CHOICE
+
+- header: JAVA_BASICS_02
+  content:
+    - Which applications can you use to edit Java code?
+  weight: 1.00
+  orderNo: 1.2
+  tasks:
+    - value: Any Text Editor
+      weight: 1.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: Software development environments (Eclipse, Intellij, VSCode..)
+      weight: 1.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: Graphic Editor (Photoshop)
+      weight: 0.00
+      orderNo: 1.3
+      type: CHOICE
+
+- header: JAVA_BASICS_03
+  content:
+    - What's the extension for a compiled Java file?
+  weight: 1.0
+  orderNo: 1.3
+  tasks:
+    - value: .class
+      weight: 1.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: .java
+      weight: 0.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: .javac
+      weight: 0.00
+      orderNo: 1.3
+      type: CHOICE
+
+- header: JAVA_BASICS_04
+  content:
+    - What's the common term for an error within a computer program's code that prevents it from functioning properly?
+  weight: 1.0
+  orderNo: 1.4
+  tasks:
+    - value: A glitch
+      weight: 0.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: A hack
+      weight: 0.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: A bug
+      weight: 1.00
+      orderNo: 1.3
+      type: CHOICE
+
+- header: JAVA_BASICS_05
+  content:
+    - What is a variable?
+  weight: 1.0
+  orderNo: 1.5
+  tasks:
+    - value: An unpredictable element in a Java program
+      weight: 0.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: A program that can run fast or slow depending on user input
+      weight: 0.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: A way to hold data temporarily in a program
+      weight: 1.00
+      orderNo: 1.3
+      type: CHOICE
+
+- header: JAVA_BASICS_06
+  content:
+    - What is String?
+  weight: 1.0
+  orderNo: 1.6
+  tasks:
+    - value: Type of variable that stores text
+      weight: 1.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: Type of variable that stores text and numbers
+      weight: 0.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: Type of variable that stores numbers
+      weight: 0.00
+      orderNo: 1.3
+      type: CHOICE
+
+- header: JAVA_BASICS_07
+  content:
+    - |
+      What will be output of x in following code?
+      <code>
+      public class Test{
+        public static void main(String[] args) {
+          int x = 1;
+          if (x == 1) {
+            x = x + 1
+          }
+        }
+      }
+      </code>
+  weight: 1.0
+  orderNo: 1.7
+  tasks:
+    - value: 0
+      weight: 0.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: 1
+      weight: 0.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: 2
+      weight: 1.00
+      orderNo: 1.3
+      type: CHOICE
+    - value: 3
+      weight: 0.00
+      orderNo: 1.4
+      type: CHOICE
+
+- header: JAVA_BASICS_08
+  content:
+    - |
+      Java is a Successor to which programming language?
+  weight: 1.0
+  orderNo: 1.8
+  tasks:
+    - value: A
+      weight: 0.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: C
+      weight: 1.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: C++
+      weight: 0.00
+      orderNo: 1.3
+      type: CHOICE
+    - value: D
+      weight: 0.00
+      orderNo: 1.4
+      type: CHOICE
+
+- header: JAVA_BASICS_09
+  content:
+    - |
+      Who invented Java language?
+  weight: 1.0
+  orderNo: 1.9
+  tasks:
+    - value: Dennis Ritchie
+      weight: 0.00
+      orderNo: 1.1
+      type: CHOICE
+    - value: James Gosling
+      weight: 1.00
+      orderNo: 1.2
+      type: CHOICE
+    - value: Larry Page
+      weight: 0.00
+      orderNo: 1.3
+      type: CHOICE
+    - value: Serge Page
+      weight: 0.00
+      orderNo: 1.4
+      type: CHOICE

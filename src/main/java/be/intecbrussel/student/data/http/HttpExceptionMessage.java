@@ -1,0 +1,12 @@
+package be.intecbrussel.student.data.http;
+
+public enum HttpExceptionMessage {
+    EXAM_COULD_NOT_BE_CREATED,
+    EXAM_COULD_NOT_BE_UPDATED,
+    EXAM_COULD_NOT_BE_PATCHED,
+    EXAM_COULD_NOT_BE_DELETED,
+    EXAM_IS_NOT_FOUND,
+    NO_EXAM_FOUND,
+    TASK_FOR_EXAM_NOT_FOUND,
+    QUESTIONS_IN_THE_EXAM_DO_NOT_EXIST
+}

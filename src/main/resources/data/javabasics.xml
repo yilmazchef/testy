@@ -1,0 +1,238 @@
+<questions>
+    <question>
+      <header>JAVA_BASICS_01</header>
+      <content>Before you start:if something is written in quotation marks("quote") then it means Java code.What is the name for an application that changes a human-readable programming language into a machine-readable language?</content>
+      <weight>1</weight>
+      <orderNo>1.1</orderNo>
+      <tasks>
+        <value>Compiler</value>
+        <weight>1</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Converter</value>
+        <weight>0</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Encoder</value>
+        <weight>0</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_02</header>
+      <content>Which applications can you use to edit Java code?</content>
+      <weight>1</weight>
+      <orderNo>1.2</orderNo>
+      <tasks>
+        <value>Any Text Editor</value>
+        <weight>1</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Software development environments (Eclipse, Intellij, VSCode..)</value>
+        <weight>1</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Graphic Editor (Photoshop)</value>
+        <weight>0</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_03</header>
+      <content>What's the extension for a compiled Java file?</content>
+      <weight>1</weight>
+      <orderNo>1.3</orderNo>
+      <tasks>
+        <value>.class</value>
+        <weight>1</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>.java</value>
+        <weight>0</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>.javac</value>
+        <weight>0</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_04</header>
+      <content>What's the common term for an error within a computer program's code that prevents it from functioning properly?</content>
+      <weight>1</weight>
+      <orderNo>1.4</orderNo>
+      <tasks>
+        <value>A glitch</value>
+        <weight>0</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>A hack</value>
+        <weight>0</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>A bug</value>
+        <weight>1</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_05</header>
+      <content>What is a variable?</content>
+      <weight>1</weight>
+      <orderNo>1.5</orderNo>
+      <tasks>
+        <value>An unpredictable element in a Java program</value>
+        <weight>0</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>A program that can run fast or slow depending on user input</value>
+        <weight>0</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>A way to hold data temporarily in a program</value>
+        <weight>1</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_06</header>
+      <content>What is String?</content>
+      <weight>1</weight>
+      <orderNo>1.6</orderNo>
+      <tasks>
+        <value>Type of variable that stores text</value>
+        <weight>1</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Type of variable that stores text and numbers</value>
+        <weight>0</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Type of variable that stores numbers</value>
+        <weight>0</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_07</header>
+      <content>What will be output of x in following code?
+        <code>public class Test{  public static void main(String[] args) {    int x = 1;    if (x == 1) {      x = x + 1    }  }}</code>
+      </content>
+      <weight>1</weight>
+      <orderNo>1.7</orderNo>
+      <tasks>
+        <value>0</value>
+        <weight>0</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>1</value>
+        <weight>0</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>2</value>
+        <weight>1</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>3</value>
+        <weight>0</weight>
+        <orderNo>1.4</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_08</header>
+      <content>Java is a Successor to which programming language?</content>
+      <weight>1</weight>
+      <orderNo>1.8</orderNo>
+      <tasks>
+        <value>A</value>
+        <weight>0</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>C</value>
+        <weight>1</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>C++</value>
+        <weight>0</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>D</value>
+        <weight>0</weight>
+        <orderNo>1.4</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+    <question>
+      <header>JAVA_BASICS_09</header>
+      <content>Who invented Java language?</content>
+      <weight>1</weight>
+      <orderNo>1.9</orderNo>
+      <tasks>
+        <value>Dennis Ritchie</value>
+        <weight>0</weight>
+        <orderNo>1.1</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>James Gosling</value>
+        <weight>1</weight>
+        <orderNo>1.2</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Larry Page</value>
+        <weight>0</weight>
+        <orderNo>1.3</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+      <tasks>
+        <value>Serge Page</value>
+        <weight>0</weight>
+        <orderNo>1.4</orderNo>
+        <type>CHOICE</type>
+      </tasks>
+    </question>
+  </questions>
