@@ -1,10 +1,10 @@
 package be.intecbrussel.student.service;
 
-import be.intecbrussel.student.data.dto.StudentDto;
-import be.intecbrussel.student.data.entity.StudentEntity;
+
 import be.intecbrussel.student.data.index.StudentFilter;
-import be.intecbrussel.student.mapper.IStudentObjectMapper;
-import be.intecbrussel.student.repository.IStudentRepository;
+import be.intecbrussel.student.mapper.IUserObjectMapper;
+import be.intecbrussel.student.mapper.IUserObjectMapper;
+import be.intecbrussel.student.repository.IUserRepository;
 import be.intecbrussel.student.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,230 +21,245 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService implements IStudentService {
 
-    private static final Logger log = LoggerFactory.getLogger(StudentService.class);
+	private static final Logger log = LoggerFactory.getLogger( StudentService.class );
 
-    private final IStudentRepository studentRepository;
-    private final IStudentObjectMapper studentMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final IUserRepository userRepository;
+	private final IUserRepository studentRepository;
+	private final IUserObjectMapper studentMapper;
+	private final BCryptPasswordEncoder passwordEncoder;
+	private final IUserRepository userRepository;
 
-    public StudentService(IStudentRepository studentRepository, IStudentObjectMapper studentMapper, BCryptPasswordEncoder passwordEncoder, IUserRepository userRepository) {
-        this.studentRepository = studentRepository;
-        this.studentMapper = studentMapper;
-        this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
-    }
 
-    @Override
-    public String addNewStudent(final StudentDto student) {
+	public StudentService( IUserRepository studentRepository, IUserObjectMapper studentMapper, BCryptPasswordEncoder passwordEncoder, IUserRepository userRepository ) {
 
-        student.setPassword(passwordEncoder.encode(student.getPassword()));
-        log.info("Password for " + student + " is encoded for secure login.");
+		this.studentRepository = studentRepository;
+		this.studentMapper = studentMapper;
+		this.passwordEncoder = passwordEncoder;
+		this.userRepository = userRepository;
+	}
 
-        final var sequence = new Object() {
-            String effectedId = null;
-        };
 
-        try {
-            final var oUser = userRepository.selectByUserName(student.getUsername());
-            final var studentEntity = studentMapper.toEntity(student);
-            if (oUser.isEmpty()) {
-                final var userEntity = studentMapper.toUserEntity(student);
-                final var savedUserId = userRepository.save(userEntity);
-                student.setId(savedUserId);
-            } else {
-                studentEntity.setId(sequence.effectedId);
-            }
+	@Override
+	public String addNewStudent( final StudentDto student ) {
 
-            sequence.effectedId = studentRepository.save(studentEntity);
-            log.info("New student is created ..");
+		student.setPassword( passwordEncoder.encode( student.getPassword() ) );
+		log.info( "Password for " + student + " is encoded for secure login." );
 
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
-        student.setId(sequence.effectedId);
+		final var sequence = new Object() {
+			String effectedId = null;
+		};
 
-        return sequence.effectedId;
-    }
+		try {
+			final var oUser = userRepository.selectByUserName( student.getUsername() );
+			final var studentEntity = studentMapper.toEntity( student );
+			if ( oUser.isEmpty() ) {
+				final var userEntity = studentMapper.toUserEntity( student );
+				final var savedUserId = userRepository.save( userEntity );
+				student.setId( savedUserId );
+			} else {
+				studentEntity.setId( sequence.effectedId );
+			}
 
-    @Override
-    public String updateStudentById(final String id, final StudentDto student) {
+			sequence.effectedId = studentRepository.save( studentEntity );
+			log.info( "New student is created .." );
 
-        final var sequence = new Object() {
-            String effectedId = null;
-        };
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
+		student.setId( sequence.effectedId );
 
-        if (!userRepository.existsByUserName(student.getUsername())) {
-            try {
-                final var studentEntity = studentMapper.toEntity(student);
-                sequence.effectedId = studentRepository.save(studentEntity);
-            } catch (SQLException sqlEx) {
-                log.error(Arrays.toString(sqlEx.getStackTrace()));
-            }
-        }
+		return sequence.effectedId;
+	}
 
-        return sequence.effectedId;
-    }
 
-    @Override
-    public String removeStudentById(final String studentId) {
+	@Override
+	public String updateStudentById( final String id, final StudentDto student ) {
 
-        final var sequence = new Object() {
-            String effectedId = null;
-        };
+		final var sequence = new Object() {
+			String effectedId = null;
+		};
 
-        if (studentRepository.existsByUserId(studentId)) {
-            try {
-                sequence.effectedId = studentRepository.delete(studentId);
-            } catch (SQLException sqlEx) {
-                log.error(Arrays.toString(sqlEx.getStackTrace()));
-            }
-        }
+		if ( !userRepository.existsByUserName( student.getUsername() ) ) {
+			try {
+				final var studentEntity = studentMapper.toEntity( student );
+				sequence.effectedId = studentRepository.save( studentEntity );
+			} catch ( SQLException sqlEx ) {
+				log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+			}
+		}
 
-        return sequence.effectedId;
-    }
+		return sequence.effectedId;
+	}
 
-    @Override
-    public Integer getStudentsCount() {
 
-        final var sequence = new Object() {
-            int result = 0;
-        };
+	@Override
+	public String removeStudentById( final String studentId ) {
 
-        try {
-            sequence.result = studentRepository.count();
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+		final var sequence = new Object() {
+			String effectedId = null;
+		};
 
-        return sequence.result;
-    }
+		if ( studentRepository.existsByUserId( studentId ) ) {
+			try {
+				sequence.effectedId = studentRepository.delete( studentId );
+			} catch ( SQLException sqlEx ) {
+				log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+			}
+		}
 
-    @Override
-    public Integer getStudentsCountByFullName(final String firstName, final String lastName) {
+		return sequence.effectedId;
+	}
 
-        final var sequence = new Object() {
-            int result = 0;
-        };
 
-        try {
-            sequence.result = studentRepository.countByFullName(firstName, lastName);
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+	@Override
+	public Integer getStudentsCount() {
 
-        return sequence.result;
-    }
+		final var sequence = new Object() {
+			int result = 0;
+		};
 
-    @Override
-    public Integer getStudentsCountByClassName(final String className) {
+		try {
+			sequence.result = studentRepository.count();
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
 
-        final var sequence = new Object() {
-            int result = 0;
-        };
+		return sequence.result;
+	}
 
-        try {
-            sequence.result = studentRepository.countByClassName(className);
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
 
-        return sequence.result;
-    }
+	@Override
+	public Integer getStudentsCountByFullName( final String firstName, final String lastName ) {
 
-    @Override
-    public Optional<StudentDto> fetchStudentById(final String studentId) {
+		final var sequence = new Object() {
+			int result = 0;
+		};
 
-        final var sequence = new Object() {
-            Optional<StudentEntity> student = Optional.empty();
-        };
+		try {
+			sequence.result = studentRepository.countByFullName( firstName, lastName );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
 
-        try {
-            sequence.student = studentRepository.selectById(studentId);
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+		return sequence.result;
+	}
 
-        return sequence.student.map(studentMapper::toDTO);
-    }
 
-    @Override
-    public Optional<StudentDto> fetchStudentByUserName(final String username) {
+	@Override
+	public Integer getStudentsCountByClassName( final String className ) {
 
-        final var sequence = new Object() {
-            Optional<StudentEntity> student = Optional.empty();
-        };
+		final var sequence = new Object() {
+			int result = 0;
+		};
 
-        try {
-            sequence.student = studentRepository.selectByUserName(username);
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+		try {
+			sequence.result = studentRepository.countByClassName( className );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
 
-        return sequence.student.map(studentMapper::toDTO);
-    }
+		return sequence.result;
+	}
 
-    @Override
-    public Optional<StudentDto> fetchStudentByLoginDetails(final String username, final String password) {
 
-        final var sequence = new Object() {
-            Optional<StudentEntity> student = Optional.empty();
-        };
+	@Override
+	public Optional< StudentDto > fetchStudentById( final String studentId ) {
 
-        try {
-            sequence.student = studentRepository.selectByLoginDetails(username, password);
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+		final var sequence = new Object() {
+			Optional< StudentEntity > student = Optional.empty();
+		};
 
-        return sequence.student.map(studentMapper::toDTO);
-    }
+		try {
+			sequence.student = studentRepository.selectById( studentId );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
 
-    @Override
-    public List<StudentDto> fetchStudents(final Integer offset, final Integer limit) {
+		return sequence.student.map( studentMapper::toDTO );
+	}
 
-        final var sequence = new Object() {
-            List<StudentEntity> students = Collections.emptyList();
-        };
 
-        try {
-            sequence.students = studentRepository.select();
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+	@Override
+	public Optional< StudentDto > fetchStudentByUserName( final String username ) {
 
-        return sequence.students.stream().map(studentMapper::toDTO).collect(Collectors.toUnmodifiableList());
-    }
+		final var sequence = new Object() {
+			Optional< StudentEntity > student = Optional.empty();
+		};
 
-    @Override
-    public List<StudentDto> fetchStudents(final Integer offset, final Integer limit, final String filterText) {
+		try {
+			sequence.student = studentRepository.selectByUserName( username );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
 
-        final var sequence = new Object() {
-            List<StudentEntity> students = Collections.emptyList();
-        };
+		return sequence.student.map( studentMapper::toDTO );
+	}
 
-        try {
-            sequence.students = studentRepository.filter(filterText);
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
 
-        return sequence.students.stream().map(studentMapper::toDTO).collect(Collectors.toUnmodifiableList());
-    }
+	@Override
+	public Optional< StudentDto > fetchStudentByLoginDetails( final String username, final String password ) {
 
-    @Override
-    public List<StudentDto> fetchStudents(final Integer offset, final Integer limit, final StudentFilter filter) {
+		final var sequence = new Object() {
+			Optional< StudentEntity > student = Optional.empty();
+		};
 
-        final var sequence = new Object() {
-            List<StudentEntity> students = Collections.emptyList();
-        };
+		try {
+			sequence.student = studentRepository.selectByLoginDetails( username, password );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
 
-        try {
-            sequence.students = studentRepository.filter(filter.getFirstName(), filter.getLastName(), filter.getClassName(), filter.getUsername());
-        } catch (SQLException sqlEx) {
-            log.error(Arrays.toString(sqlEx.getStackTrace()));
-        }
+		return sequence.student.map( studentMapper::toDTO );
+	}
 
-        return sequence.students.stream().map(studentMapper::toDTO).collect(Collectors.toUnmodifiableList());
-    }
+
+	@Override
+	public List< StudentDto > fetchStudents( final Integer offset, final Integer limit ) {
+
+		final var sequence = new Object() {
+			List< StudentEntity > students = Collections.emptyList();
+		};
+
+		try {
+			sequence.students = studentRepository.select();
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
+
+		return sequence.students.stream().map( studentMapper::toDTO ).collect( Collectors.toUnmodifiableList() );
+	}
+
+
+	@Override
+	public List< StudentDto > fetchStudents( final Integer offset, final Integer limit, final String filterText ) {
+
+		final var sequence = new Object() {
+			List< StudentEntity > students = Collections.emptyList();
+		};
+
+		try {
+			sequence.students = studentRepository.filter( filterText );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
+
+		return sequence.students.stream().map( studentMapper::toDTO ).collect( Collectors.toUnmodifiableList() );
+	}
+
+
+	@Override
+	public List< StudentDto > fetchStudents( final Integer offset, final Integer limit, final StudentFilter filter ) {
+
+		final var sequence = new Object() {
+			List< StudentEntity > students = Collections.emptyList();
+		};
+
+		try {
+			sequence.students = studentRepository.filter( filter.getFirstName(), filter.getLastName(), filter.getClassName(), filter.getUsername() );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
+
+		return sequence.students.stream().map( studentMapper::toDTO ).collect( Collectors.toUnmodifiableList() );
+	}
+
 }

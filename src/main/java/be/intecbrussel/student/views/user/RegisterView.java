@@ -1,182 +1,112 @@
-package be.intecbrussel.student.views.user;
+package it.vkod.views;
 
-import be.intecbrussel.student.security.SecurityUtils;
-import be.intecbrussel.student.service.EmailService;
-import be.intecbrussel.student.service.IManagerService;
-import be.intecbrussel.student.service.IStudentService;
-import be.intecbrussel.student.service.ITeacherService;
-import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
-import be.intecbrussel.student.views.anonymous.AnonymousNewExamView;
 
-import com.github.appreciated.app.layout.addons.notification.entity.DefaultNotification;
-import com.vaadin.flow.component.Direction;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.Shortcuts;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.i18n.LocaleChangeEvent;
-import com.vaadin.flow.i18n.LocaleChangeObserver;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import it.vkod.data.entity.User;
+import it.vkod.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Objects;
+import java.sql.Date;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Locale;
 
-import static be.intecbrussel.student.views.user.RegisterView.RegistryType.*;
+@PageTitle( "Register" )
+@Route( "reg" )
+@AnonymousAllowed
+public class RegisterView extends VerticalLayout {
 
-@PageTitle(RegisterView.TITLE)
-@Route(value = RegisterView.ROUTE, layout = MainAppLayout.class)
-public class RegisterView extends AbstractView implements BeforeEnterObserver, LocaleChangeObserver {
 
-    public static final String TITLE = "Register | Testy";
-    public static final String ROUTE = "register";
+	public RegisterView( @Autowired UserRepository userRepository, @Autowired BCryptPasswordEncoder passwordEncoder ) {
 
-    private final IStudentService studentService;
-    private final ITeacherService teacherService;
-    private final IManagerService managerService;
+		final var formLayout = new FormLayout();
 
-    private final MainAppLayout appLayout;
-    private final VerticalLayout registryLayout;
-    private final H2 registryFormHeader;
+		final var phoneField = new TextField();
+		final var emailField = new EmailField();
+		emailField.setReadOnly( true );
 
-    private final StudentRegisterView studentRegisterView;
-    private final TeacherRegisterView teacherRegisterView;
-    private final ManagerRegisterView managerRegisterView;
+		final var usernameField = new TextField();
+		usernameField.addValueChangeListener( onChange -> {
+			emailField.setValue( onChange.getValue().concat( "@intecbrussel.be" ) );
+			if ( emailField.isInvalid() ) {
+				usernameField.clear();
+			}
+		} );
 
-    private final EmailService emailService;
+		final var firstNameField = new TextField();
 
-    public enum RegistryType {
-        Student, Teacher, Manager
-    }
+		final var lastNameField = new TextField();
+		lastNameField.addValueChangeListener( onChange -> {
+			usernameField.setValue( firstNameField.getValue().concat( "." ).concat( lastNameField.getValue() ) );
+		} );
 
-    public RegisterView(IStudentService studentService, ITeacherService teacherService, IManagerService managerService,
-            MainAppLayout appLayout, EmailService emailService) {
-        this.studentService = studentService;
-        this.teacherService = teacherService;
-        this.managerService = managerService;
+		final var passwordField = new TextField();
+		passwordField.setClearButtonVisible( true );
 
-        this.emailService = emailService;
+		final var repeatField = new TextField();
+		repeatField.setClearButtonVisible( true );
+		lastNameField.addValueChangeListener( onChange -> {
+			final var passwordsMatch = passwordField.getValue().contentEquals( onChange.getValue() );
+			if ( passwordsMatch && ( !passwordField.isEmpty() && !repeatField.isEmpty() ) ) {
+				passwordField.getStyle().set( "color", "red" );
+				passwordField.setInvalid( true );
+				repeatField.getStyle().set( "color", "red" );
+				repeatField.setInvalid( true );
+			} else {
+				passwordField.getStyle().set( "color", "green" );
+				repeatField.getStyle().set( "color", "green" );
+			}
+		} );
 
-        this.appLayout = appLayout;
+		final var acceptCheck = new Checkbox( "I accept terms and conditions." );
 
-        initParentStyle();
+		formLayout.addFormItem( firstNameField, "First name" );
+		formLayout.addFormItem( lastNameField, "Last name" );
+		formLayout.addFormItem( usernameField, "Username" );
+		formLayout.addFormItem( emailField, "E-mail" );
+		formLayout.addFormItem( phoneField, "Phone" );
+		formLayout.addFormItem( passwordField, "Password" );
+		formLayout.addFormItem( repeatField, "Repeat Password" );
+		formLayout.add( acceptCheck );
 
-        if (SecurityUtils.isUserLoggedIn()) {
-            appLayout.getNotifications().add(new DefaultNotification("ALREADY LOGGED IN",
-                    "You have already logged, to register with another account please logout first.."));
-        }
+		final var submitButton = new Button( "Submit Form", onClick -> {
+			final var exists = userRepository.existsByUsername( usernameField.getValue().toLowerCase() );
+			if ( Boolean.FALSE.equals( exists ) && !passwordField.isEmpty() && acceptCheck.getValue().equals( Boolean.TRUE ) ) {
+				final var user = new User()
+						.withFirstName( firstNameField.getValue().toLowerCase( Locale.ROOT ) )
+						.withLastName( lastNameField.getValue().toLowerCase( Locale.ROOT ) )
+						.withUsername( usernameField.getValue().toLowerCase( Locale.ROOT ) )
+						.withEmail( emailField.getValue().toLowerCase( Locale.ROOT ) )
+						.withHashedPassword( passwordEncoder.encode( passwordField.getValue() ) )
+						.withPhone( phoneField.getValue() )
+						.withRegisteredOn( Date.valueOf( LocalDate.now() ) )
+						.withRegisteredAt( Time.valueOf( LocalTime.now() ) )
+						.withUpdatedAt( Time.valueOf( LocalTime.now() ) )
+						.withRoles( "USER" );
 
-        this.registryLayout = new VerticalLayout();
-        this.registryLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-        
-        this.registryFormHeader = new H2("Registry Form");
+				final var savedUser = userRepository.save( user );
 
-        this.studentRegisterView = new StudentRegisterView(studentService, appLayout, emailService);
-        this.teacherRegisterView = new TeacherRegisterView(teacherService, appLayout, emailService);
-        this.managerRegisterView = new ManagerRegisterView(managerService, appLayout, emailService);
+				if ( !savedUser.isNew() ) {
+					Notification.show( "Success! User is registered.", 3000, Notification.Position.BOTTOM_CENTER ).open();
+				}
+			}
+		} );
 
-        this.studentRegisterView.setVisible(false);
-        this.teacherRegisterView.setVisible(false);
-        this.managerRegisterView.setVisible(false);
+		formLayout.add( submitButton );
 
-        final var registryTypeComboBox = new ComboBox<RegistryType>();
-        registryTypeComboBox.setItemLabelGenerator(RegistryType::name);
-        registryTypeComboBox.setItems(Manager, Teacher, Student);
-        registryTypeComboBox.addValueChangeListener(onChange -> {
-            switch (onChange.getValue()) {
-            case Student:
-                changeRegistryForm("Student Registry Form", true, false, false);
-                break;
-            case Teacher:
-                changeRegistryForm("Teacher Registry Form", false, true, false);
-                break;
-            case Manager:
-                changeRegistryForm("Manager Registry Form", false, false, true);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + onChange.getValue());
-            }
-        });
+		add( formLayout );
 
-        this.registryLayout.add(this.registryFormHeader, registryTypeComboBox, this.studentRegisterView,
-                this.teacherRegisterView, this.managerRegisterView);
+	}
 
-        add(this.registryLayout);
-
-    }
-
-    private void changeRegistryForm(final String header, final boolean isStudent, final boolean isTeacher,
-            final boolean isManager) {
-        this.registryFormHeader.setText(header);
-        this.studentRegisterView.setVisible(isStudent);
-        this.teacherRegisterView.setVisible(isTeacher);
-        this.managerRegisterView.setVisible(isManager);
-    }
-
-    private void initParentStyle() {
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-
-        if (SecurityUtils.isUserLoggedIn()) {
-            
-            final var dialog = new Dialog();
-            dialog.add(new Text("You have already logged with an existing account, are you sure you would like to create another?"));
-            dialog.setCloseOnEsc(false);
-            dialog.setCloseOnOutsideClick(false);
-
-            final var message = new Span();
-
-            final var confirmButton = new Button("Confirm", event -> {
-                message.setText("Confirmed!");
-                dialog.close();
-            });
-            final var cancelButton = new Button("Cancel", event -> {
-                message.setText("Cancelled...");
-                dialog.close();
-                UI.getCurrent().navigate(AnonymousNewExamView.class);
-            });
-
-            // Cancel action on ESC press
-            Shortcuts.addShortcutListener(dialog, () -> {
-                message.setText("Cancelled...");
-                dialog.close();
-                UI.getCurrent().navigate(AnonymousNewExamView.class);
-            }, Key.ESCAPE);
-
-            // Confirm action on Enter press
-            Shortcuts.addShortcutListener(dialog, () -> {
-                message.setText("Confirmed...");
-                dialog.close();
-            }, Key.ENTER);
-
-            dialog.add(new Div(confirmButton, cancelButton));
-        }
-    }
-
-    @Override
-    public String getViewName() {
-        return RegisterView.TITLE;
-    }
-
-    @Override
-    public void localeChange(LocaleChangeEvent event) {
-        if (Objects.equals(event.getLocale().getLanguage(), "ar")) {
-            event.getUI().setDirection(Direction.RIGHT_TO_LEFT);
-        } else {
-            event.getUI().setDirection(Direction.LEFT_TO_RIGHT);
-        }
-    }
 }

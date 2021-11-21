@@ -1,61 +1,30 @@
-package be.intecbrussel.student.views.user;
+package it.vkod.views;
 
-import static be.intecbrussel.student.views.user.LoginView.ROUTE;
-import static be.intecbrussel.student.views.user.LoginView.TITLE;
 
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.login.LoginForm;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.login.LoginI18n;
+import com.vaadin.flow.component.login.LoginOverlay;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
+@PageTitle("Login")
+@Route(value = "login")
+@AnonymousAllowed
+public class LoginView extends LoginOverlay {
 
-@PageTitle(TITLE)
-@Route(value = ROUTE, layout = MainAppLayout.class)
-public class LoginView extends AbstractView implements BeforeEnterObserver {
+    public LoginView() {
 
-    public static final String ROUTE = "login";
-    public static final String TITLE = "Login | Testy";
+        setAction("login");
 
-    private final MainAppLayout appLayout;
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.setHeader(new LoginI18n.Header());
+        i18n.getHeader().setTitle("Check In/Out");
+        i18n.getHeader().setDescription("student | yilmaz.mustafa | pearl.de.smet");
+        i18n.setAdditionalInformation(null);
+        setI18n(i18n);
 
-    private final LoginForm login = new LoginForm();
-
-    public LoginView(MainAppLayout appLayout) {
-        this.appLayout = appLayout;
-
-        initParentStyle();
-
-        login.setAction("login");
-
-        add(
-                new H1("Testy Login"),
-                login
-        );
-    }
-
-    private void initParentStyle() {
-        addClassName("login-view");
-        setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        setAlignItems(Alignment.CENTER);
-    }
-
-    @Override
-    public String getViewName() {
-        return TITLE;
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        // inform the user about an authentication error
-        if (beforeEnterEvent.getLocation().getQueryParameters() != null && beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("error")) {
-            login.setError(true);
-        }
+        setForgotPasswordButtonVisible(false);
+        setOpened(true);
     }
 
 }
-
