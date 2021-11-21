@@ -5,7 +5,6 @@ import be.intecbrussel.student.data.entity.UserEntity;
 import be.intecbrussel.student.repository.UserRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,10 +16,15 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 @Component
-@RequiredArgsConstructor
 public class AuthenticatedUser {
 
 	private final UserRepository userRepository;
+
+
+	public AuthenticatedUser( final UserRepository userRepository ) {
+
+		this.userRepository = userRepository;
+	}
 
 
 	private Optional< Authentication > getAuthentication() {

@@ -2,7 +2,7 @@ package be.intecbrussel.student.data.index;
 
 import java.util.Objects;
 
-public class StudentFilter {
+public class UserFilter {
 
     private String firstName;
     private String lastName;
@@ -41,28 +41,28 @@ public class StudentFilter {
         this.username = username;
     }
 
-    public StudentFilter withFirstName(final String firstName) {
+    public UserFilter withFirstName( final String firstName) {
         this.setFirstName(firstName);
         return this;
     }
 
-    public StudentFilter withLastName(final String lastName) {
+    public UserFilter withLastName( final String lastName) {
         this.setLastName(lastName);
         return this;
     }
 
-    public StudentFilter withFullName(final String firstName, final String lastName) {
+    public UserFilter withFullName( final String firstName, final String lastName) {
         this.setFirstName(firstName);
         this.setLastName(lastName);
         return this;
     }
 
-    public StudentFilter withClassName(final String className) {
+    public UserFilter withClassName( final String className) {
         this.setClassName(className);
         return this;
     }
 
-    public StudentFilter withUserName(final String username) {
+    public UserFilter withUserName( final String username) {
         this.setUsername(username);
         return this;
     }
@@ -70,8 +70,8 @@ public class StudentFilter {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StudentFilter)) return false;
-        StudentFilter that = (StudentFilter) o;
+        if (!(o instanceof UserFilter )) return false;
+        UserFilter that = ( UserFilter ) o;
         return Objects.equals(getFirstName(), that.getFirstName()) && Objects.equals(getLastName(), that.getLastName()) && Objects.equals(getClassName(), that.getClassName());
     }
 

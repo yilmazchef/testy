@@ -1,16 +1,15 @@
 package be.intecbrussel.student.views.anonymous;
 
+
 import be.intecbrussel.student.data.dto.ExamDto;
 import be.intecbrussel.student.data.dto.QuestionDto;
-import be.intecbrussel.student.data.dto.StudentDto;
 import be.intecbrussel.student.data.dto.TaskDto;
 import be.intecbrussel.student.service.IExamService;
 import be.intecbrussel.student.views.AbstractView;
+import be.intecbrussel.student.views.DefaultNotification;
 import be.intecbrussel.student.views.MainAppLayout;
+import be.intecbrussel.student.views.Priority;
 import be.intecbrussel.student.views.student.StudentExamAnalyticsView;
-import be.intecbrussel.student.views.student.StudentNewExamView;
-import com.github.appreciated.app.layout.addons.notification.entity.DefaultNotification;
-import com.github.appreciated.app.layout.addons.notification.entity.Priority;
 import com.mlottmann.vstepper.VStepper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -25,17 +24,18 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @PageTitle(AnonymousNewExamView.TITLE)
 @Route(value = "", layout = MainAppLayout.class)
 @RouteAlias(value = AnonymousNewExamView.ROUTE, layout = MainAppLayout.class)
+@AnonymousAllowed
 public class AnonymousNewExamView extends AbstractView implements HasUrlParameter<String> {
 
     private static final Logger ANONYMOUS_VIEW_LOGGER = LoggerFactory.getLogger(AnonymousNewExamView.class);

@@ -3,7 +3,6 @@ package be.intecbrussel.student.security;
 
 import be.intecbrussel.student.data.entity.UserEntity;
 import be.intecbrussel.student.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,10 +17,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	private final UserRepository userRepository;
+
+
+	public UserDetailsServiceImpl( final UserRepository userRepository ) {
+
+		this.userRepository = userRepository;
+	}
 
 
 	@Override

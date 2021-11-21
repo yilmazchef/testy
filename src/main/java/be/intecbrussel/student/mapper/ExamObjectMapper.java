@@ -18,6 +18,7 @@ public class ExamObjectMapper implements IExamObjectMapper {
         if (dto.getSession() != null) entity.setSession(dto.getSession());
         if (dto.getStartTime() != null) entity.setStartTime(dto.getStartTime());
         if (dto.getEndTime() != null) entity.setEndTime(dto.getEndTime());
+        if (dto.getOrganizer() != null && dto.getOrganizer().getId() != null) entity.setOrganizerId(dto.getOrganizer().getId());
         if (dto.getStudent() != null && dto.getStudent().getId() != null) entity.setStudentId(dto.getStudent().getId());
         if (dto.getTask() != null && dto.getTask().getId() != null) entity.setTaskId(dto.getTask().getId());
         if (dto.getScore() != null) entity.setScore(dto.getScore());
@@ -48,6 +49,7 @@ public class ExamObjectMapper implements IExamObjectMapper {
         if (entity.getSession() != null) dto.setSession(entity.getSession());
         if (entity.getStartTime() != null) dto.setStartTime(entity.getStartTime());
         if (entity.getEndTime() != null) dto.setEndTime(entity.getEndTime());
+        if (entity.getOrganizerId() != null) dto.setOrganizerId(entity.getOrganizerId());
         if (entity.getStudentId() != null) dto.setStudentId(entity.getStudentId());
         if (entity.getTaskId() != null) dto.setTaskId(entity.getTaskId());
         if (entity.getScore() != null) dto.setScore(entity.getScore());

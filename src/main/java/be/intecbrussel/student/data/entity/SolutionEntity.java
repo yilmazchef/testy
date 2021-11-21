@@ -113,12 +113,12 @@ public class SolutionEntity extends AEntity {
     }
 
     @Override
-    public StudentEntity withId(String id) {
+    public SolutionEntity withId(String id) {
         return null;
     }
 
     @Override
-    public StudentEntity withActive(Boolean active) {
+    public SolutionEntity withActive(Boolean active) {
         return null;
     }
 

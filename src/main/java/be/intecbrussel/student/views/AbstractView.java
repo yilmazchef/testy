@@ -1,9 +1,9 @@
 package be.intecbrussel.student.views;
 
+
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.VaadinSessionState;
 
 import java.util.List;
 

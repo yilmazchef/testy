@@ -6,11 +6,13 @@ import be.intecbrussel.student.views.component.GradientRadialBarChartLayout;
 import be.intecbrussel.student.views.component.PieChartLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
 
+@AnonymousAllowed
 public class AnonymousExamCharts extends VerticalLayout {
 
     public AnonymousExamCharts(List<ExamDto> exams) {

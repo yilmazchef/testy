@@ -1,7 +1,7 @@
 package be.intecbrussel.student.service;
 
-import be.intecbrussel.student.data.dto.StudentDto;
-import be.intecbrussel.student.data.dto.TeacherDto;
+
+import be.intecbrussel.student.data.dto.UserDto;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,28 +10,28 @@ import java.util.Set;
 
 public interface ITeacherService {
 
-    String addNewTeacher(final TeacherDto teacher);
+    String addNewTeacher(final UserDto teacher);
 
-    default Set<String> addNewTeachers(final Set<TeacherDto> teacherSet) {
+    default Set<String> addNewTeachers(final Set<UserDto> teacherSet) {
         Set<String> set = new HashSet<>();
-        for (TeacherDto teacherDto : teacherSet) {
+        for (UserDto teacherDto : teacherSet) {
             String addedTeacherId = addNewTeacher(teacherDto);
             set.add(addedTeacherId);
         }
         return set;
     }
 
-    String updateTeacherById(final String id, final TeacherDto teacher);
+    String updateTeacherById(final String id, final UserDto teacher);
 
     String removeTeacherById(final String teacherId);
 
     Integer getTeachersCount();
 
-    Optional<TeacherDto> fetchTeacherById(final String teacherId);
+    Optional<UserDto> fetchTeacherById(final String teacherId);
 
-    Optional<TeacherDto> fetchTeacherByUserName(final String username);
+    Optional<UserDto> fetchTeacherByUserName(final String username);
 
-    Optional<TeacherDto> fetchTeacherByLoginDetails(final String username, final String password);
+    Optional<UserDto> fetchTeacherByLoginDetails(final String username, final String password);
 
-    List<TeacherDto> fetchTeachers(Integer offset, Integer limit);
+    List<UserDto> fetchTeachers(Integer offset, Integer limit);
 }

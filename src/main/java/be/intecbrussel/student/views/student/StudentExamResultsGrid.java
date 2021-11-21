@@ -5,9 +5,11 @@ import be.intecbrussel.student.data.dto.TaskDto;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@PermitAll
 public class StudentExamResultsGrid extends Grid<ExamDto> {
 
     public StudentExamResultsGrid(List<ExamDto> exams) {

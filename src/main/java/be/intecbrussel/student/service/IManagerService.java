@@ -1,7 +1,7 @@
 package be.intecbrussel.student.service;
 
-import be.intecbrussel.student.data.dto.ManagerDto;
-import be.intecbrussel.student.data.dto.TeacherDto;
+
+import be.intecbrussel.student.data.dto.UserDto;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,28 +10,30 @@ import java.util.Set;
 
 public interface IManagerService {
 
-    String addNewManager(final ManagerDto manager);
+	String addNewManager( final UserDto manager );
 
-    default Set<String> addNewManagers(final Set<ManagerDto> managerSet) {
-        Set<String> set = new HashSet<>();
-        for (ManagerDto managerDto : managerSet) {
-            String addedManagerId = addNewManager(managerDto);
-            set.add(addedManagerId);
-        }
-        return set;
-    }
+	default Set< String > addNewManagers( final Set< UserDto > managerSet ) {
 
-    String updateManagerById(final String id, final ManagerDto manager);
+		Set< String > set = new HashSet<>();
+		for ( UserDto managerDto : managerSet ) {
+			String addedManagerId = addNewManager( managerDto );
+			set.add( addedManagerId );
+		}
+		return set;
+	}
 
-    String removeManagerById(final String managerId);
+	String updateManagerById( final String id, final UserDto manager );
 
-    Integer getManagersCount();
+	String removeManagerById( final String managerId );
 
-    Optional<ManagerDto> fetchManagerById(final String managerId);
+	Integer getManagersCount();
 
-    Optional<ManagerDto> fetchManagerByLoginDetails(final String username, final String password);
+	Optional< UserDto > fetchManagerById( final String managerId );
 
-    Optional<ManagerDto> fetchManagerByUserName(final String username);
+	Optional< UserDto > fetchManagerByLoginDetails( final String username, final String password );
 
-    List<ManagerDto> fetchManagers(Integer offset, Integer limit);
+	Optional< UserDto > fetchManagerByUserName( final String username );
+
+	List< UserDto > fetchManagers( Integer offset, Integer limit );
+
 }

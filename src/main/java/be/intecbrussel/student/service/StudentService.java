@@ -1,10 +1,10 @@
 package be.intecbrussel.student.service;
 
 
-import be.intecbrussel.student.data.index.StudentFilter;
+import be.intecbrussel.student.data.dto.UserDto;
+import be.intecbrussel.student.data.entity.UserEntity;
+import be.intecbrussel.student.data.index.UserFilter;
 import be.intecbrussel.student.mapper.IUserObjectMapper;
-import be.intecbrussel.student.mapper.IUserObjectMapper;
-import be.intecbrussel.student.repository.IUserRepository;
 import be.intecbrussel.student.repository.IUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class StudentService implements IStudentService {
+public class StudentService {
 
 	private static final Logger log = LoggerFactory.getLogger( StudentService.class );
 
@@ -29,17 +29,17 @@ public class StudentService implements IStudentService {
 	private final IUserRepository userRepository;
 
 
-	public StudentService( IUserRepository studentRepository, IUserObjectMapper studentMapper, BCryptPasswordEncoder passwordEncoder, IUserRepository userRepository ) {
+	public StudentService( final IUserRepository studentRepository, final IUserObjectMapper studentMapper, final BCryptPasswordEncoder passwordEncoder, final IUserRepository userRepository ) {
 
 		this.studentRepository = studentRepository;
 		this.studentMapper = studentMapper;
 		this.passwordEncoder = passwordEncoder;
+
 		this.userRepository = userRepository;
 	}
 
 
-	@Override
-	public String addNewStudent( final StudentDto student ) {
+	public String addNewUser( final UserDto student ) {
 
 		student.setPassword( passwordEncoder.encode( student.getPassword() ) );
 		log.info( "Password for " + student + " is encoded for secure login." );
@@ -52,7 +52,7 @@ public class StudentService implements IStudentService {
 			final var oUser = userRepository.selectByUserName( student.getUsername() );
 			final var studentEntity = studentMapper.toEntity( student );
 			if ( oUser.isEmpty() ) {
-				final var userEntity = studentMapper.toUserEntity( student );
+				final var userEntity = studentMapper.toEntity( student );
 				final var savedUserId = userRepository.save( userEntity );
 				student.setId( savedUserId );
 			} else {
@@ -71,8 +71,7 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public String updateStudentById( final String id, final StudentDto student ) {
+	public String updateUserById( final String id, final UserDto student ) {
 
 		final var sequence = new Object() {
 			String effectedId = null;
@@ -91,8 +90,7 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public String removeStudentById( final String studentId ) {
+	public String removeUserById( final String studentId ) {
 
 		final var sequence = new Object() {
 			String effectedId = null;
@@ -110,8 +108,7 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public Integer getStudentsCount() {
+	public Integer getUsersCount() {
 
 		final var sequence = new Object() {
 			int result = 0;
@@ -127,8 +124,7 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public Integer getStudentsCountByFullName( final String firstName, final String lastName ) {
+	public Integer getUsersCountByFullName( final String firstName, final String lastName ) {
 
 		final var sequence = new Object() {
 			int result = 0;
@@ -144,28 +140,10 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public Integer getStudentsCountByClassName( final String className ) {
+	public Optional< UserDto > fetchUserById( final String studentId ) {
 
 		final var sequence = new Object() {
-			int result = 0;
-		};
-
-		try {
-			sequence.result = studentRepository.countByClassName( className );
-		} catch ( SQLException sqlEx ) {
-			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
-		}
-
-		return sequence.result;
-	}
-
-
-	@Override
-	public Optional< StudentDto > fetchStudentById( final String studentId ) {
-
-		final var sequence = new Object() {
-			Optional< StudentEntity > student = Optional.empty();
+			Optional< UserEntity > student = Optional.empty();
 		};
 
 		try {
@@ -178,11 +156,10 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public Optional< StudentDto > fetchStudentByUserName( final String username ) {
+	public Optional< UserDto > fetchUserByUserName( final String username ) {
 
 		final var sequence = new Object() {
-			Optional< StudentEntity > student = Optional.empty();
+			Optional< UserEntity > student = Optional.empty();
 		};
 
 		try {
@@ -195,15 +172,14 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public Optional< StudentDto > fetchStudentByLoginDetails( final String username, final String password ) {
+	public Optional< UserDto > fetchUserByLoginDetails( final String username, final String password ) {
 
 		final var sequence = new Object() {
-			Optional< StudentEntity > student = Optional.empty();
+			Optional< UserEntity > student = Optional.empty();
 		};
 
 		try {
-			sequence.student = studentRepository.selectByLoginDetails( username, password );
+			sequence.student = studentRepository.selectForLogin( username, password );
 		} catch ( SQLException sqlEx ) {
 			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
 		}
@@ -212,15 +188,14 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public List< StudentDto > fetchStudents( final Integer offset, final Integer limit ) {
+	public List< UserDto > fetchUsers( final Integer offset, final Integer limit ) {
 
 		final var sequence = new Object() {
-			List< StudentEntity > students = Collections.emptyList();
+			List< UserEntity > students = Collections.emptyList();
 		};
 
 		try {
-			sequence.students = studentRepository.select();
+			sequence.students = studentRepository.selectAll();
 		} catch ( SQLException sqlEx ) {
 			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
 		}
@@ -229,11 +204,10 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public List< StudentDto > fetchStudents( final Integer offset, final Integer limit, final String filterText ) {
+	public List< UserDto > fetchUsers( final Integer offset, final Integer limit, final String filterText ) {
 
 		final var sequence = new Object() {
-			List< StudentEntity > students = Collections.emptyList();
+			List< UserEntity > students = Collections.emptyList();
 		};
 
 		try {
@@ -246,15 +220,14 @@ public class StudentService implements IStudentService {
 	}
 
 
-	@Override
-	public List< StudentDto > fetchStudents( final Integer offset, final Integer limit, final StudentFilter filter ) {
+	public List< UserDto > fetchUsers( final Integer offset, final Integer limit, final UserFilter userFilter ) {
 
 		final var sequence = new Object() {
-			List< StudentEntity > students = Collections.emptyList();
+			List< UserEntity > students = Collections.emptyList();
 		};
 
 		try {
-			sequence.students = studentRepository.filter( filter.getFirstName(), filter.getLastName(), filter.getClassName(), filter.getUsername() );
+			sequence.students = studentRepository.filter( userFilter );
 		} catch ( SQLException sqlEx ) {
 			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
 		}

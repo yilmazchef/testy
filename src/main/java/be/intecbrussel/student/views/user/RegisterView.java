@@ -1,6 +1,8 @@
-package it.vkod.views;
+package be.intecbrussel.student.views.user;
 
 
+import be.intecbrussel.student.data.entity.UserEntity;
+import be.intecbrussel.student.repository.UserRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -11,15 +13,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import it.vkod.data.entity.User;
-import it.vkod.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.sql.SQLException;
 import java.util.Locale;
 
 @PageTitle( "Register" )
@@ -81,21 +78,32 @@ public class RegisterView extends VerticalLayout {
 		formLayout.add( acceptCheck );
 
 		final var submitButton = new Button( "Submit Form", onClick -> {
-			final var exists = userRepository.existsByUsername( usernameField.getValue().toLowerCase() );
+			final var exists = userRepository.existsByUserName( usernameField.getValue().toLowerCase() );
 			if ( Boolean.FALSE.equals( exists ) && !passwordField.isEmpty() && acceptCheck.getValue().equals( Boolean.TRUE ) ) {
-				final var user = new User()
+				final var user = new UserEntity()
 						.withFirstName( firstNameField.getValue().toLowerCase( Locale.ROOT ) )
 						.withLastName( lastNameField.getValue().toLowerCase( Locale.ROOT ) )
 						.withUsername( usernameField.getValue().toLowerCase( Locale.ROOT ) )
 						.withEmail( emailField.getValue().toLowerCase( Locale.ROOT ) )
-						.withHashedPassword( passwordEncoder.encode( passwordField.getValue() ) )
+						.withPassword( passwordEncoder.encode( passwordField.getValue() ) )
 						.withPhone( phoneField.getValue() )
-						.withRegisteredOn( Date.valueOf( LocalDate.now() ) )
-						.withRegisteredAt( Time.valueOf( LocalTime.now() ) )
-						.withUpdatedAt( Time.valueOf( LocalTime.now() ) )
 						.withRoles( "USER" );
 
-				final var savedUser = userRepository.save( user );
+				final var savedUser = new Object() {
+					String newId = null;
+
+					boolean isNew() {
+
+						return newId == null;
+					}
+				};
+
+				try {
+					savedUser.newId = userRepository.save( user );
+				} catch ( SQLException sqlException ) {
+					Notification.show( "Failed! User CANNOT BE registered.", 3000,
+							Notification.Position.BOTTOM_CENTER ).open();
+				}
 
 				if ( !savedUser.isNew() ) {
 					Notification.show( "Success! User is registered.", 3000, Notification.Position.BOTTOM_CENTER ).open();

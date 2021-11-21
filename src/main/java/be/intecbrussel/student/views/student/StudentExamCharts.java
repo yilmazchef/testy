@@ -6,10 +6,12 @@ import be.intecbrussel.student.views.component.GradientRadialBarChartLayout;
 import be.intecbrussel.student.views.component.PieChartLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import javax.annotation.security.PermitAll;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+@PermitAll
 public class StudentExamCharts extends VerticalLayout {
 
     public StudentExamCharts(List<ExamDto> exams) {

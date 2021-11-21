@@ -11,13 +11,13 @@
 
     <properties>
         <java.version>11</java.version>
-        <vaadin.version>14.5.3</vaadin.version>
+        <vaadin.version>21.0.3</vaadin.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.5</version>
+        <version>2.5.4</version>
     </parent>
 
     <repositories>
@@ -30,6 +30,12 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>vaadin-prereleases</id>
+            <url>
+                https://maven.vaadin.com/vaadin-prereleases/
+            </url>
         </repository>
         <!-- Repository used by many Vaadin add-ons -->
         <repository>
@@ -70,6 +76,7 @@
             <groupId>com.vaadin</groupId>
             <!-- Replace artifactId with vaadin-core to use only free components -->
             <artifactId>vaadin-core</artifactId>
+            <version>21.0.6</version>
             <exclusions>
                 <!-- Webjars are only needed when running in Vaadin 13 compatibility mode -->
                 <exclusion>
@@ -102,6 +109,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
+            <version>21.0.6</version>
             <exclusions>
                 <!-- Excluding so that webjars are not included. -->
                 <exclusion>
@@ -116,27 +124,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.appreciated</groupId>
-            <artifactId>app-layout-addon</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-avatar-flow</artifactId>
-            <version>1.0.1</version>
+            <version>21.0.6</version>
         </dependency>
 
         <dependency>
             <groupId>org.vaadin.artur</groupId>
             <artifactId>a-vaadin-helper</artifactId>
             <version>1.5.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.vaadin.artur.exampledata</groupId>
-            <artifactId>exampledata</artifactId>
-            <version>3.0.0</version>
         </dependency>
 
         <dependency>
@@ -148,32 +144,37 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
-            <version>2.3.4.RELEASE</version>
+            <version>2.5.6</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+            <version>2.5.6</version>
         </dependency>
 
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.27</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+            <version>2.5.6</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>2.5.6</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
+            <version>2.5.6</version>
             <optional>true</optional>
         </dependency>
 
@@ -186,6 +187,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>2.5.6</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -208,39 +210,22 @@
         </dependency>
 
         <dependency>
-            <groupId>com.wontlost</groupId>
-            <artifactId>ckeditor-vaadin</artifactId>
-            <version>2.1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.flowingcode.addons</groupId>
-            <artifactId>font-awesome-iron-iconset</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>2.5.6</version>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <scope>test</scope>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-testbench</artifactId>
-            <version>19.0.2</version>
+            <version>21.0.6</version>
         </dependency>
 
         <dependency>
             <scope>test</scope>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>4.3.1</version>
+            <version>5.0.2</version>
         </dependency>
 
         <dependency>
@@ -255,43 +240,26 @@
             <version>3.4.1</version>
         </dependency>
 
-        <dependency>
+
+        <!--<dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.12.2</version>
-        </dependency>
+            <version>2.13.0</version>
+        </dependency>-->
 
      
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.12.2</version>
+            <version>2.13.0</version>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.7</version>
+            <version>2.11.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.mdre</groupId>
-            <artifactId>bubbledialog</artifactId>
-            <version>1.0.4.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
-            <scope>provided</scope>
-        </dependency>
 
     </dependencies>
 
@@ -326,13 +294,34 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- display active profile in compile phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>show-profiles</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>active-profiles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <!-- Production mode is activated using -Pproduction -->
             <id>production</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
             <build>
                 <plugins>
                     <plugin>
@@ -358,6 +347,11 @@
 
         <profile>
             <id>it</id>
+
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
             <build>
                 <plugins>
                     <plugin>

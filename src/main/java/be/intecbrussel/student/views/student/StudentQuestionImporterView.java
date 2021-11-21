@@ -1,18 +1,22 @@
 package be.intecbrussel.student.views.student;
 
-import be.intecbrussel.student.data.dto.*;
-import be.intecbrussel.student.security.SecurityUtils;
+
+import be.intecbrussel.student.data.dto.ExamDto;
+import be.intecbrussel.student.data.dto.QuestionDto;
+import be.intecbrussel.student.data.dto.TaskDto;
+import be.intecbrussel.student.data.dto.UserDto;
+import be.intecbrussel.student.data.entity.UserEntity;
+import be.intecbrussel.student.security.AuthenticatedUser;
 import be.intecbrussel.student.service.IExamService;
 import be.intecbrussel.student.service.IQuestionService;
 import be.intecbrussel.student.service.IStudentService;
 import be.intecbrussel.student.util.QuestionBatchImporter;
 import be.intecbrussel.student.views.AbstractView;
+import be.intecbrussel.student.views.DefaultNotification;
 import be.intecbrussel.student.views.MainAppLayout;
-import be.intecbrussel.student.views.user.LoginView;
+import be.intecbrussel.student.views.Priority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.github.appreciated.app.layout.addons.notification.entity.DefaultNotification;
-import com.github.appreciated.app.layout.addons.notification.entity.Priority;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
@@ -25,158 +29,187 @@ import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.server.VaadinSession;
 import org.springframework.http.HttpEntity;
 
+import javax.annotation.security.PermitAll;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@PageTitle(StudentQuestionImporterView.TITLE)
-@Route(value = StudentQuestionImporterView.ROUTE, layout = MainAppLayout.class)
+@PageTitle( StudentQuestionImporterView.TITLE )
+@Route( value = StudentQuestionImporterView.ROUTE, layout = MainAppLayout.class )
+@PermitAll
 public class StudentQuestionImporterView extends AbstractView {
 
-    public static final String TITLE = "Student Exam Loader from External Resource(s)";
-    public static final String ROUTE = "student/load";
+	public static final String TITLE = "Student Exam Loader from External Resource(s)";
+	public static final String ROUTE = "student/load";
 
-    private final VaadinSession currentSession = VaadinSession.getCurrent();
+	private final VaadinSession currentSession = VaadinSession.getCurrent();
 
-    private final IExamService examService;
-    private final IQuestionService questionService;
-    private final IStudentService studentService;
-    private final QuestionBatchImporter batchImporter;
-    private final MainAppLayout appLayout;
+	private final IExamService examService;
+	private final IQuestionService questionService;
+	private final IStudentService studentService;
+	private final QuestionBatchImporter batchImporter;
+	private final MainAppLayout appLayout;
+	private final AuthenticatedUser authenticatedUser;
 
-    public StudentQuestionImporterView(IExamService examService, IQuestionService questionService, IStudentService studentService,
-                                       QuestionBatchImporter batchImporter, MainAppLayout appLayout) {
 
-        this.examService = examService;
-        this.questionService = questionService;
-        this.studentService = studentService;
-        this.batchImporter = batchImporter;
-        this.appLayout = appLayout;
+	public StudentQuestionImporterView( IExamService examService, IQuestionService questionService, IStudentService studentService,
+	                                    QuestionBatchImporter batchImporter, MainAppLayout appLayout, final AuthenticatedUser authenticatedUser ) {
 
-        initParentComponentStyle();
+		this.examService = examService;
+		this.questionService = questionService;
+		this.studentService = studentService;
+		this.batchImporter = batchImporter;
+		this.appLayout = appLayout;
+		this.authenticatedUser = authenticatedUser;
 
-        if (!SecurityUtils.isUserLoggedIn()) {
-            UI.getCurrent().navigate(LoginView.class, new RouteParameters("redirected", "student"));
-        } else {
-            final var authenticatedUser = SecurityUtils.getAuthenticatedUser();
-            final var fetchedStudent = studentService.fetchStudentByUserName(authenticatedUser.getName());
-            add(initBatchImporterLayout(fetchedStudent.orElseGet(() -> new StudentDto().withAnonymous(true))));
-        }
-    }
+		initParentComponentStyle();
 
-    private VerticalLayout initBatchImporterLayout(StudentDto student) {
+		final var userBeingSearched = new Object() {
+			String userId = null;
+		};
 
-        final var importLayout = new VerticalLayout();
-        final var buffer = new MemoryBuffer();
-        final var upload = new Upload(buffer);
-        final var uploadStatusDiv = new Div();
+		Optional< UserEntity > oUser = Optional.empty();
+		try {
+			oUser = authenticatedUser.get();
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
 
-        upload.addSucceededListener(onSucceeded -> {
+		if ( oUser.isPresent() ) {
+			final var user = oUser.get();
+			userBeingSearched.userId = user.getId();
+		}
 
-            final var inputStream = buffer.getInputStream();
-            final var fileName = onSucceeded.getFileName();
+		final var fetchedStudent = studentService.fetchStudentByUserName( userBeingSearched.userId );
 
-            final var yamlFactory = new YAMLFactory();
-            final var yamlMapper = new ObjectMapper(yamlFactory);
-            try {
+		add( initBatchImporterLayout( fetchedStudent.orElseGet( () -> new UserDto().withAnonymous( true ) ) ) );
+	}
 
-                // TODO: student can only import existing questions ..
-                // a new batchImporter must be created to make sure all questions exist in the DB
-                // all tasks will have no weight but when import is done, questions will retrieve
-                // other required data from DB to make sure tasks have weights..
 
-                final var beans = Arrays.asList(yamlMapper.readValue(inputStream, QuestionDto[].class));
-                final var countResponse = examService.countByQuestions(
-                        beans.stream().map(QuestionDto::getId).collect(Collectors.toUnmodifiableSet()),
-                        currentSession.getSession().getId());
+	private VerticalLayout initBatchImporterLayout( UserDto student ) {
 
-                if (countResponse.hasBody()) {
-                    for (QuestionDto bean : beans) {
-                        bean.setTeacher(new TeacherDto().withAnonymous(true).withId(UUID.randomUUID().toString()));
-                    }
+		final var importLayout = new VerticalLayout();
+		final var buffer = new MemoryBuffer();
+		final var upload = new Upload( buffer );
+		final var uploadStatusDiv = new Div();
 
-                    final var importedQuestions = batchImporter.batchImportQuestions(beans.toArray(QuestionDto[]::new));
-                    final var importedTasks = importedQuestions
-                            .stream()
-                            .map(task -> batchImporter.batchImportTasks(task.getId(), task.getTasks().toArray(TaskDto[]::new)))
-                            .collect(Collectors.toUnmodifiableList());
+		upload.addSucceededListener( onSucceeded -> {
 
-                    uploadStatusDiv.setText(importedQuestions.size() + " new questions with " + importedTasks.size() + " new tasks in total.");
+			final var inputStream = buffer.getInputStream();
+			final var fileName = onSucceeded.getFileName();
 
-                    final var code = fileName.replace(".yaml", "");
-                    final var examsInitialized = initExams(student, code, importedQuestions);
+			final var yamlFactory = new YAMLFactory();
+			final var yamlMapper = new ObjectMapper( yamlFactory );
+			try {
 
-                    final var questionImportMessage = "Question(s) from " + fileName + " is/are imported: ";
-                    appLayout.getNotifications().add(new DefaultNotification("Question Batch Import", questionImportMessage));
+				// TODO: student can only import existing questions ..
+				// a new batchImporter must be created to make sure all questions exist in the DB
+				// all tasks will have no weight but when import is done, questions will retrieve
+				// other required data from DB to make sure tasks have weights..
 
-                    uploadStatusDiv.removeAll();
+				final var beans = Arrays.asList( yamlMapper.readValue( inputStream, QuestionDto[].class ) );
+				final var countResponse = examService.countByQuestions(
+						beans.stream().map( QuestionDto::getId ).collect( Collectors.toUnmodifiableSet() ),
+						currentSession.getSession().getId() );
 
-                    if (examsInitialized) {
-                        final var examsGeneratedMessage = "New exams based on the questions imported are generated..";
-                        appLayout.getNotifications().add(new DefaultNotification("New Exam", examsGeneratedMessage));
-                        UI.getCurrent().navigate(StudentNewExamView.class, new RouteParameters("code", code));
-                    }
-                }
+				if ( countResponse.hasBody() ) {
+					for ( QuestionDto bean : beans ) {
+						bean.setTeacher( new UserDto().withAnonymous( true ).withId( UUID.randomUUID().toString() ) );
+					}
 
-            } catch (IOException ioException) {
-                appLayout.getNotifications().add(new DefaultNotification("ERROR", ioException.getMessage(), Priority.ERROR));
-            }
+					final var importedQuestions = batchImporter.batchImportQuestions( beans.toArray( QuestionDto[]::new ) );
+					final var importedTasks = importedQuestions
+							.stream()
+							.map( task -> batchImporter.batchImportTasks( task.getId(), task.getTasks().toArray( TaskDto[]::new ) ) )
+							.collect( Collectors.toUnmodifiableList() );
 
-        });
+					uploadStatusDiv.setText( importedQuestions.size() + " new questions with " + importedTasks.size() + " new tasks in total." );
 
-        upload.addFileRejectedListener(onRejected -> {
-            uploadStatusDiv.removeAll();
-            new Notification(onRejected.getErrorMessage(), 2000, Notification.Position.BOTTOM_CENTER).open();
-        });
+					final var code = fileName.replace( ".yaml", "" );
+					final var examsInitialized = initExams( student, code, importedQuestions );
 
-        upload.getElement().addEventListener("file-remove", onRemoved -> uploadStatusDiv.removeAll());
+					final var questionImportMessage = "Question(s) from " + fileName + " is/are imported: ";
+					appLayout.getNotifications().add( new DefaultNotification( "Question Batch Import", questionImportMessage ) );
 
-        importLayout.add(upload, uploadStatusDiv);
+					uploadStatusDiv.removeAll();
 
-        add(importLayout);
+					if ( examsInitialized ) {
+						final var examsGeneratedMessage = "New exams based on the questions imported are generated..";
+						appLayout.getNotifications().add( new DefaultNotification( "New Exam", examsGeneratedMessage ) );
+						UI.getCurrent().navigate( StudentNewExamView.class, new RouteParameters( "code", code ) );
+					}
+				}
 
-        return importLayout;
-    }
+			} catch ( IOException ioException ) {
+				appLayout.getNotifications().add( new DefaultNotification( "ERROR", ioException.getMessage(), Priority.ERROR ) );
+			}
 
-    private boolean initExams(final StudentDto student, final String examCode, final List<QuestionDto> questions) {
-        final var examsCount = questions
-                .stream()
-                .flatMap(questionDto -> questionDto.getTasks().stream())
-                .map(taskDto -> newExam(examCode, taskDto, student))
-                .map(examService::create)
-                .filter(HttpEntity::hasBody)
-                .count();
+		} );
 
-        final var message = "An exam with " + examCode + " and with " + examsCount + (examsCount == 1 ? "question" : "questions") + " is generated.";
-        appLayout.getNotifications().add(new DefaultNotification("New Exam is Ready", message));
+		upload.addFileRejectedListener( onRejected -> {
+			uploadStatusDiv.removeAll();
+			new Notification( onRejected.getErrorMessage(), 2000, Notification.Position.BOTTOM_CENTER ).open();
+		} );
 
-        return examsCount > 0;
-    }
+		upload.getElement().addEventListener( "file-remove", onRemoved -> uploadStatusDiv.removeAll() );
 
-    private ExamDto newExam(final String examCode, final TaskDto task, StudentDto student) {
-        return new ExamDto()
-                .withCode(examCode)
-                .withSession(currentSession.getSession().getId())
-                .withStartTime(Timestamp.valueOf(LocalDateTime.now()))
-                .withEndTime(Timestamp.valueOf(LocalDateTime.now()))
-                .withStudent(student)
-                .withTask(task)
-                .withScore(task.getWeight());
-    }
+		importLayout.add( upload, uploadStatusDiv );
 
-    private void initParentComponentStyle() {
-        setWidthFull();
-        setMargin(false);
-        setPadding(false);
-        setHorizontalComponentAlignment(Alignment.CENTER);
-    }
+		add( importLayout );
 
-    @Override
-    public String getViewName() {
-        return StudentQuestionImporterView.ROUTE;
-    }
+		return importLayout;
+	}
+
+
+	private boolean initExams( final UserDto student, final String examCode, final List< QuestionDto > questions ) {
+
+		final var examsCount = questions
+				.stream()
+				.flatMap( questionDto -> questionDto.getTasks().stream() )
+				.map( taskDto -> newExam( examCode, taskDto, student ) )
+				.map( examService::create )
+				.filter( HttpEntity::hasBody )
+				.count();
+
+		final var message = "An exam with " + examCode + " and with " + examsCount + ( examsCount == 1 ? "question" : "questions" ) + " is generated.";
+		appLayout.getNotifications().add( new DefaultNotification( "New Exam is Ready", message ) );
+
+		return examsCount > 0;
+	}
+
+
+	private ExamDto newExam( final String examCode, final TaskDto task, UserDto student ) {
+
+		return new ExamDto()
+				.withCode( examCode )
+				.withSession( currentSession.getSession().getId() )
+				.withStartTime( Timestamp.valueOf( LocalDateTime.now() ) )
+				.withEndTime( Timestamp.valueOf( LocalDateTime.now() ) )
+				.withStudent( student )
+				.withTask( task )
+				.withScore( task.getWeight() );
+	}
+
+
+	private void initParentComponentStyle() {
+
+		setWidthFull();
+		setMargin( false );
+		setPadding( false );
+		setHorizontalComponentAlignment( Alignment.CENTER );
+	}
+
+
+	@Override
+	public String getViewName() {
+
+		return StudentQuestionImporterView.ROUTE;
+	}
+
 }

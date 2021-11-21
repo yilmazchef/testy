@@ -1,3 +1,1 @@
-
-.\mvnw.cmd dependency:go-offline -Pproduction && ^
-.\mvnw.cmd clean install -DskipTests $JAVA_OPTS -Pproduction spring-boot:run
+.\mvnw.cmd clean install -DskipTests -Pproduction spring-boot:run

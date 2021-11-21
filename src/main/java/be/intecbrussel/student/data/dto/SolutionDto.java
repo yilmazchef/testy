@@ -1,14 +1,13 @@
 package be.intecbrussel.student.data.dto;
 
 import be.intecbrussel.student.data.entity.AEntity;
-import be.intecbrussel.student.data.entity.StudentEntity;
 
 import java.util.Objects;
 
 public class SolutionDto extends AEntity {
 
     private ExamDto exam;
-    private TeacherDto teacher;
+    private UserDto teacher;
     private String content;
     private Integer likes;
     private Integer dislikes;
@@ -35,19 +34,19 @@ public class SolutionDto extends AEntity {
         return this;
     }
 
-    public TeacherDto getTeacher() {
+    public UserDto getTeacher() {
         return teacher;
     }
 
-    public void setTeacher(TeacherDto teacher) {
+    public void setTeacher(UserDto teacher) {
         this.teacher = teacher;
     }
 
     public void setTeacherId(String teacherId) {
-        this.setTeacher((this.getTeacher() == null) ? new TeacherDto().withId(teacherId) : this.getTeacher().withId(teacherId));
+        this.setTeacher((this.getTeacher() == null) ? new UserDto().withId(teacherId) : this.getTeacher().withId(teacherId));
     }
 
-    public SolutionDto withTeacher(TeacherDto teacher) {
+    public SolutionDto withTeacher(UserDto teacher) {
         this.setTeacher(teacher);
         return this;
     }
@@ -134,12 +133,12 @@ public class SolutionDto extends AEntity {
     }
 
     @Override
-    public StudentEntity withId(String id) {
+    public SolutionDto withId( String id) {
         return null;
     }
 
     @Override
-    public StudentEntity withActive(Boolean active) {
+    public SolutionDto withActive(Boolean active) {
         return null;
     }
 

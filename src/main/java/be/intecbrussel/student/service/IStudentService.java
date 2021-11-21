@@ -1,7 +1,8 @@
 package be.intecbrussel.student.service;
 
-import be.intecbrussel.student.data.dto.StudentDto;
-import be.intecbrussel.student.data.index.StudentFilter;
+
+import be.intecbrussel.student.data.dto.UserDto;
+import be.intecbrussel.student.data.index.UserFilter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -10,37 +11,38 @@ import java.util.Set;
 
 public interface IStudentService {
 
-    String addNewStudent(final StudentDto student);
+	String addNewStudent( final UserDto student );
 
-    default Set<String> addNewStudents(final Set<StudentDto> studentSet) {
-        Set<String> set = new HashSet<>();
-        for (StudentDto studentDto : studentSet) {
-            String addedStudentId = addNewStudent(studentDto);
-            set.add(addedStudentId);
-        }
-        return set;
-    }
+	default Set< String > addNewStudents( final Set< UserDto > studentSet ) {
 
-    String updateStudentById(final String id, final StudentDto student);
+		Set< String > set = new HashSet<>();
+		for ( UserDto studentDto : studentSet ) {
+			String addedStudentId = addNewStudent( studentDto );
+			set.add( addedStudentId );
+		}
+		return set;
+	}
 
-    String removeStudentById(final String studentId);
+	String updateStudentById( final String id, final UserDto student );
 
-    Integer getStudentsCount();
+	String removeStudentById( final String studentId );
 
-    Integer getStudentsCountByFullName(final String firstName, final String lastName);
+	Integer getStudentsCount();
 
-    Integer getStudentsCountByClassName(final String className);
+	Integer getStudentsCountByFullName( final String firstName, final String lastName );
 
-    Optional<StudentDto> fetchStudentById(final String studentId);
+	Integer getStudentsCountByClassName( final String className );
 
-    Optional<StudentDto> fetchStudentByUserName(final String username);
+	Optional< UserDto > fetchStudentById( final String studentId );
 
-    Optional<StudentDto> fetchStudentByLoginDetails(final String username, final String password);
+	Optional< UserDto > fetchStudentByUserName( final String username );
 
-    List<StudentDto> fetchStudents(final Integer offset, final Integer limit);
+	Optional< UserDto > fetchStudentByLoginDetails( final String username, final String password );
 
-    List<StudentDto> fetchStudents(final Integer offset, final Integer limit, final String filterText);
+	List< UserDto > fetchStudents( final Integer offset, final Integer limit );
 
-    List<StudentDto> fetchStudents(final Integer offset, final Integer limit, final StudentFilter filter);
+	List< UserDto > fetchStudents( final Integer offset, final Integer limit, final String filterText );
+
+	List< UserDto > fetchStudents( final Integer offset, final Integer limit, final UserFilter filter );
 
 }

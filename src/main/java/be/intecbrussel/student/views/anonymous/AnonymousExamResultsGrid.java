@@ -4,10 +4,12 @@ import be.intecbrussel.student.data.dto.ExamDto;
 import be.intecbrussel.student.data.dto.TaskDto;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@AnonymousAllowed
 public class AnonymousExamResultsGrid extends Grid<ExamDto> {
 
     public AnonymousExamResultsGrid(List<ExamDto> exams) {

@@ -12,7 +12,7 @@ public class QuestionDto extends ADto {
     private String header;
     private List<String> content = new ArrayList<>();
     private Double weight;
-    private TeacherDto teacher;
+    private UserDto teacher;
 
     private final List<TaskDto> tasks = new ArrayList<>();
     private final List<TagDto> tags = new ArrayList<>();
@@ -93,16 +93,16 @@ public class QuestionDto extends ADto {
         this.weight = weight;
     }
 
-    public TeacherDto getTeacher() {
+    public UserDto getTeacher() {
         return teacher;
     }
 
-    public void setTeacher(TeacherDto teacher) {
+    public void setTeacher(UserDto teacher) {
         this.teacher = teacher;
     }
 
     public void setTeacherId(String teacher) {
-        this.teacher = new TeacherDto().withId(teacher);
+        this.teacher = new UserDto().withId(teacher);
     }
 
     public QuestionDto withOrderNo(Integer orderNo) {
@@ -132,11 +132,11 @@ public class QuestionDto extends ADto {
     }
 
     public QuestionDto withTeacherId(String teacherId) {
-        this.setTeacher(new TeacherDto().withId(teacherId));
+        this.setTeacher(new UserDto().withId(teacherId));
         return this;
     }
 
-    public QuestionDto withTeacher(TeacherDto teacher) {
+    public QuestionDto withTeacher(UserDto teacher) {
         this.setTeacher(teacher);
         return this;
     }

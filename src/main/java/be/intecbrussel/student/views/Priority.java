@@ -1,2 +1,12 @@
-package be.intecbrussel.student.views;public class Priority {
+package be.intecbrussel.student.views;
+
+
+public enum Priority {
+	LOW,
+	MEDIUM,
+	HIGH,
+	ERROR,
+	WARNING,
+	EXCEPTION
+
 }

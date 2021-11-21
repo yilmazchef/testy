@@ -11,9 +11,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 
+import javax.annotation.security.PermitAll;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@PermitAll
 public class StudentExamRecapStepper extends VStepper {
 
     public StudentExamRecapStepper(List<ExamDto> exams) {

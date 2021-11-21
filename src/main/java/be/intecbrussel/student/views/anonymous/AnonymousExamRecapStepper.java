@@ -10,10 +10,12 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@AnonymousAllowed
 public class AnonymousExamRecapStepper extends VStepper {
 
     public AnonymousExamRecapStepper(List<ExamDto> exams) {

@@ -1,4 +1,4 @@
-package it.vkod.views;
+package be.intecbrussel.student.views.user;
 
 
 import com.vaadin.flow.component.login.LoginI18n;
