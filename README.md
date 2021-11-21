@@ -1,4 +1,4 @@
-# Intec Tester
+# Testy - Enjoy the Exams
 
 This is an example project that can be used as a starting point to create online tests for students.. It contains all
 the necessary configuration, and some placeholder files to get you started.
