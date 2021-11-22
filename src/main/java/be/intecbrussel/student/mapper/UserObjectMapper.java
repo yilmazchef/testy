@@ -5,9 +5,6 @@ import be.intecbrussel.student.data.dto.UserDto;
 import be.intecbrussel.student.data.entity.UserEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 @Component
 public class UserObjectMapper implements IUserObjectMapper {
 
@@ -31,12 +28,15 @@ public class UserObjectMapper implements IUserObjectMapper {
 		if ( dto.getActive() != null ) {
 			entity.setActive( dto.getActive() );
 		}
+
 		if ( dto.getAuthenticated() != null ) {
 			entity.setAuthenticated( dto.getAuthenticated() );
 		}
+
 		if ( dto.getRoles() != null ) {
-			entity.setRoles( String.join( "", dto.getRoles() ) );
+			entity.setRoles( dto.getRoles() );
 		}
+
 		if ( dto.getUsername() != null ) {
 			entity.setUsername( dto.getUsername() );
 		}
@@ -78,7 +78,7 @@ public class UserObjectMapper implements IUserObjectMapper {
 		}
 
 		if ( entity.getRoles() != null ) {
-			dto.setRoles( new HashSet<>( Arrays.asList( entity.getRoles().split( "," ) ) ) );
+			dto.setRoles( entity.getRoles() );
 		}
 
 		if ( entity.getUsername() != null ) {

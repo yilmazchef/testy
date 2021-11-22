@@ -29,7 +29,7 @@ import static be.intecbrussel.student.views.teacher.TeacherStudentsView.TITLE;
 
 @PageTitle( TITLE )
 @Route( ROUTE )
-@RolesAllowed( { "ROLE_TEACHER", "ROLE_MANAGER" } )
+@RolesAllowed( { "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_TEACHER" } )
 public class TeacherStudentsView extends AbstractView {
 
 	public static final String ROUTE = "teacher/students";

@@ -3,9 +3,11 @@ package be.intecbrussel.student.views;
 
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import static com.vaadin.flow.component.notification.Notification.Position.BOTTOM_CENTER;
 
+@AnonymousAllowed
 public class DefaultNotification extends Span {
 
 	public DefaultNotification( final String text ) {

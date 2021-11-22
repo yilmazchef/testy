@@ -1,9 +1,6 @@
 package be.intecbrussel.student.data.dto;
 
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 public class UserDto extends AUserDto {
 
 	private String firstName;
@@ -135,7 +132,7 @@ public class UserDto extends AUserDto {
 	@Override
 	public AUserDto withRoles( String... roles ) {
 
-		super.setRoles( new HashSet<>( Arrays.asList( roles ) ) );
+		super.setRoles( String.join( ",", roles ) );
 		return this;
 	}
 

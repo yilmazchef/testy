@@ -39,7 +39,7 @@ public class AuthenticatedUser {
 
 		final var oAuthentication = getAuthentication();
 		if( oAuthentication.isPresent() ){
-			return userRepository.selectByUserName( oAuthentication.get().getName() );
+			return userRepository.selectByUniqueFields( oAuthentication.get().getName() );
 		} else {
 			return Optional.empty();
 		}

@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 @PageTitle( TeacherQuestionEditorView.TITLE )
 @Route( value = TeacherQuestionEditorView.ROUTE )
-@RolesAllowed( { "ROLE_TEACHER", "ROLE_MANAGER" } )
+@RolesAllowed( { "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_TEACHER" } )
 public class TeacherQuestionEditorView extends AbstractView {
 
 	public static final String TITLE = "Exam Designer";

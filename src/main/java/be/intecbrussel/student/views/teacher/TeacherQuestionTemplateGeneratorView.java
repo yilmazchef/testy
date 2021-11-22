@@ -31,7 +31,7 @@ import static be.intecbrussel.student.views.teacher.TeacherQuestionTemplateGener
 
 @PageTitle( TITLE )
 @Route( ROUTE )
-@RolesAllowed( { "ROLE_MANAGER", "ROLE_TEACHER" } )
+@RolesAllowed( { "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_TEACHER" } )
 public class TeacherQuestionTemplateGeneratorView extends AbstractView {
 
 	public static final String TITLE = "Question File Generator";

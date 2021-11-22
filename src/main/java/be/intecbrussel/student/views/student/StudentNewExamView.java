@@ -98,9 +98,12 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 			userBeingSearched.userId = user.getId();
 		}
 
-		final var fetchedStudent = studentService.fetchStudentByUserName( userBeingSearched.userId );
+		final var fetchedStudent = studentService.fetchStudentById( userBeingSearched.userId );
 
-		this.startExamButton.addClickListener( onClick -> startExamEvent() );
+		this.startExamButton.addClickListener( onClick -> {
+			this.startExamButton.setText( onClick.getClickCount() % 2 == 0 ? "Stop" : "Start" );
+			startExamEvent();
+		} );
 
 		initStepperStyle();
 

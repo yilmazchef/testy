@@ -54,7 +54,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		return Arrays
 				.stream( user.getRoles().split( "," ) )
 				.map( role -> new SimpleGrantedAuthority( "ROLE_" + role ) )
-				.collect( Collectors.toList() );
+				.collect( Collectors.toUnmodifiableList() );
 
 	}
 

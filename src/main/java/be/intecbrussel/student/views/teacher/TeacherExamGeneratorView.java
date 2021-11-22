@@ -31,7 +31,6 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 
 import javax.annotation.security.RolesAllowed;
 import java.sql.SQLException;
@@ -45,13 +44,12 @@ import java.util.stream.Collectors;
 
 @PageTitle( TeacherExamGeneratorView.TITLE )
 @Route( value = TeacherExamGeneratorView.ROUTE )
-@RolesAllowed( { "ROLE_TEACHER", "ROLE_MANAGER" } )
+@RolesAllowed( { "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_TEACHER" } )
+// <- Should match one of the user's roles (case-sensitive)
 public class TeacherExamGeneratorView extends AbstractView {
 
 	public static final String TITLE = "Exam Generator";
 	public static final String ROUTE = "teacher/exam";
-
-	private final VaadinSession currentSession = VaadinSession.getCurrent();
 
 	private final IQuestionService questionService;
 	private final ITeacherService teacherService;

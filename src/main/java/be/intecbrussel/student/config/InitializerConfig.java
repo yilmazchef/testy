@@ -24,7 +24,7 @@ public class InitializerConfig implements CommandLineRunner {
 	public void run( final String... args ) throws Exception {
 
 		this.importer
-				.withTeacher(
+				.withAdmin(
 						new UserEntity()
 								.withActivation( UUID.randomUUID().toString() )
 								.withPassword("P@ssw0rd" )

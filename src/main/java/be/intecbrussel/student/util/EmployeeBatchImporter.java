@@ -26,6 +26,7 @@ public class EmployeeBatchImporter {
 
 	private final BCryptPasswordEncoder passwordEncoder;
 
+	private final List< UserEntity > admins = new ArrayList<>();
 	private final List< UserEntity > managers = new ArrayList<>();
 	private final List< UserEntity > teachers = new ArrayList<>();
 	private final List< UserEntity > students = new ArrayList<>();
@@ -38,9 +39,23 @@ public class EmployeeBatchImporter {
 	}
 
 
+	public EmployeeBatchImporter withAdmin( UserEntity admin ) {
+
+		this.admins.add( admin );
+		return this;
+	}
+
+
 	public EmployeeBatchImporter withManager( UserEntity manager ) {
 
 		this.managers.add( manager );
+		return this;
+	}
+
+
+	public EmployeeBatchImporter withAdmins( List< UserEntity > admins ) {
+
+		this.admins.addAll( admins );
 		return this;
 	}
 
@@ -84,6 +99,41 @@ public class EmployeeBatchImporter {
 
 		log.info( "---------------------------------------------------- DUMMY DATA (DELETE THIS IN PRODUCTION) ----------------------------------------------------" );
 
+		final var adminList = this.admins
+				.stream()
+				.map( admin -> {
+
+					final var effected = new Object() {
+						final UserEntity entity = admin;
+					};
+
+					final var user = new UserEntity()
+							.withUsername( admin.getUsername() )
+							.withPassword( admin.getPassword() )
+							.withFirstName( admin.getFirstName() )
+							.withLastName( admin.getLastName() )
+							.withEmail( admin.getEmail() )
+							.withPhone( admin.getPhone() )
+							.withActivation( UUID.randomUUID().toString() )
+							.withAnonymous( Boolean.FALSE )
+							.withActive( true )
+							.withAuthenticated( true );
+
+					user.setRoles( "ADMIN" );
+
+					log.info( user.toString() );
+					user.setPassword( passwordEncoder.encode( user.getPassword() ) );
+
+					try {
+						final var savedUserId = userRepository.save( user );
+						effected.entity.setId( savedUserId );
+					} catch ( SQLException sqlEx ) {
+						log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+					}
+
+					return effected.entity;
+				} ).collect( Collectors.toUnmodifiableList() );
+
 		final var managerList = this.managers
 				.stream()
 				.map( manager -> {
@@ -104,7 +154,7 @@ public class EmployeeBatchImporter {
 							.withActive( true )
 							.withAuthenticated( true );
 
-					user.setRoles( "MANAGER_ROLE, TEACHER_ROLE" );
+					user.setRoles( "MANAGER,TEACHER" );
 
 					log.info( user.toString() );
 					user.setPassword( passwordEncoder.encode( user.getPassword() ) );
@@ -139,7 +189,7 @@ public class EmployeeBatchImporter {
 							.withActive( true )
 							.withAuthenticated( true );
 
-					user.setRoles( "TEACHER_ROLE" );
+					user.setRoles( "TEACHER" );
 
 					log.info( user.toString() );
 					user.setPassword( passwordEncoder.encode( user.getPassword() ) );
@@ -174,7 +224,7 @@ public class EmployeeBatchImporter {
 							.withActive( true )
 							.withAuthenticated( true );
 
-					user.setRoles( "ANON_ROLE,STUDENT_ROLE" );
+					user.setRoles( "STUDENT,USER" );
 
 					log.info( user.toString() );
 					user.setPassword( passwordEncoder.encode( user.getPassword() ) );

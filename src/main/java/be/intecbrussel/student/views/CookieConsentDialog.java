@@ -12,6 +12,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import static be.intecbrussel.student.data.http.CookieConsent.*;
 import static java.text.MessageFormat.format;
 
+@AnonymousAllowed
 public class CookieConsentDialog extends Dialog {
 
     public CookieConsentDialog() {
