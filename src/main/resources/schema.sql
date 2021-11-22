@@ -1,5 +1,11 @@
 # noinspection SqlNoDataSourceInspectionForFile
 
+DROP DATABASE testydb;
+
+CREATE DATABASE testydb;
+
+USE testydb;
+
 DROP TABLE IF EXISTS testy_solution;
 
 CREATE TABLE IF NOT EXISTS testy_solution

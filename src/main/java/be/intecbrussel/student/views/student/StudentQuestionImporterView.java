@@ -120,14 +120,6 @@ public class StudentQuestionImporterView extends AbstractView {
 
 				final var beans = Arrays.asList( yamlMapper.readValue( inputStream, QuestionDto[].class ) );
 
-				/*
-				final var countResponse = examService.countByQuestions(
-						beans.stream().map( QuestionDto::getId ).collect( Collectors.toUnmodifiableSet() ),
-						currentSession.getSession().getId() );
-				*/
-				for ( QuestionDto bean : beans ) {
-					bean.setTeacher( new UserDto().withAnonymous( true ).withId( teacherCode.getValue() ) );
-				}
 
 				final var importedQuestions = batchImporter.batchImportQuestions( beans.toArray( QuestionDto[]::new ) );
 				final var importedTasks = importedQuestions
