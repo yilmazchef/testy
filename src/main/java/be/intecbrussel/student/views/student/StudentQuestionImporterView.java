@@ -81,9 +81,8 @@ public class StudentQuestionImporterView extends AbstractView {
 		if ( oUser.isPresent() ) {
 			final var user = oUser.get();
 			userBeingSearched.userId = user.getId();
-			final var fetchedStudent = studentService.fetchStudentByUserName( userBeingSearched.userId );
-			add( initBatchImporterLayout( fetchedStudent.orElseGet( () -> new UserDto().withAnonymous( true ) ) ) );
-
+			final var oStudent = studentService.fetchStudentById( userBeingSearched.userId );
+			oStudent.ifPresent( userDto -> add( initBatchImporterLayout( userDto ) ) );
 		}
 
 

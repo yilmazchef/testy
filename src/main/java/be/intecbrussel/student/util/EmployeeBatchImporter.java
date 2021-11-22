@@ -95,7 +95,12 @@ public class EmployeeBatchImporter {
 					final var user = new UserEntity()
 							.withUsername( manager.getUsername() )
 							.withPassword( manager.getPassword() )
+							.withFirstName( manager.getFirstName() )
+							.withLastName( manager.getLastName() )
+							.withEmail( manager.getEmail() )
+							.withPhone( manager.getPhone() )
 							.withActivation( UUID.randomUUID().toString() )
+							.withAnonymous( Boolean.FALSE )
 							.withActive( true )
 							.withAuthenticated( true );
 
@@ -126,6 +131,11 @@ public class EmployeeBatchImporter {
 							.withUsername( teacher.getUsername() )
 							.withPassword( teacher.getPassword() )
 							.withActivation( UUID.randomUUID().toString() )
+							.withAnonymous( Boolean.FALSE )
+							.withFirstName( teacher.getFirstName() )
+							.withLastName( teacher.getLastName() )
+							.withEmail( teacher.getEmail() )
+							.withPhone( teacher.getPhone() )
 							.withActive( true )
 							.withAuthenticated( true );
 
@@ -156,6 +166,11 @@ public class EmployeeBatchImporter {
 							.withUsername( student.getUsername() )
 							.withPassword( student.getPassword() )
 							.withActivation( UUID.randomUUID().toString() )
+							.withAnonymous( Boolean.FALSE )
+							.withFirstName( student.getFirstName() )
+							.withLastName( student.getLastName() )
+							.withEmail( student.getEmail() )
+							.withPhone( student.getPhone() )
 							.withActive( true )
 							.withAuthenticated( true );
 
