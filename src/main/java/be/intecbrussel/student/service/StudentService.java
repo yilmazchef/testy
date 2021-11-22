@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class StudentService {
+public class StudentService implements IStudentService {
 
 	private static final Logger log = LoggerFactory.getLogger( StudentService.class );
 
@@ -39,7 +39,8 @@ public class StudentService {
 	}
 
 
-	public String addNewUser( final UserDto student ) {
+	@Override
+	public String addNewStudent( final UserDto student ) {
 
 		student.setPassword( passwordEncoder.encode( student.getPassword() ) );
 		log.info( "Password for " + student + " is encoded for secure login." );
@@ -71,7 +72,8 @@ public class StudentService {
 	}
 
 
-	public String updateUserById( final String id, final UserDto student ) {
+	@Override
+	public String updateStudentById( final String id, final UserDto student ) {
 
 		final var sequence = new Object() {
 			String effectedId = null;
@@ -90,7 +92,8 @@ public class StudentService {
 	}
 
 
-	public String removeUserById( final String studentId ) {
+	@Override
+	public String removeStudentById( final String studentId ) {
 
 		final var sequence = new Object() {
 			String effectedId = null;
@@ -108,7 +111,8 @@ public class StudentService {
 	}
 
 
-	public Integer getUsersCount() {
+	@Override
+	public Integer getStudentsCount() {
 
 		final var sequence = new Object() {
 			int result = 0;
@@ -124,7 +128,8 @@ public class StudentService {
 	}
 
 
-	public Integer getUsersCountByFullName( final String firstName, final String lastName ) {
+	@Override
+	public Integer getStudentsCountByFullName( final String firstName, final String lastName ) {
 
 		final var sequence = new Object() {
 			int result = 0;
@@ -140,7 +145,8 @@ public class StudentService {
 	}
 
 
-	public Optional< UserDto > fetchUserById( final String studentId ) {
+	@Override
+	public Optional< UserDto > fetchStudentById( final String studentId ) {
 
 		final var sequence = new Object() {
 			Optional< UserEntity > student = Optional.empty();
@@ -156,7 +162,8 @@ public class StudentService {
 	}
 
 
-	public Optional< UserDto > fetchUserByUserName( final String username ) {
+	@Override
+	public Optional< UserDto > fetchStudentByUserName( final String username ) {
 
 		final var sequence = new Object() {
 			Optional< UserEntity > student = Optional.empty();
@@ -172,7 +179,8 @@ public class StudentService {
 	}
 
 
-	public Optional< UserDto > fetchUserByLoginDetails( final String username, final String password ) {
+	@Override
+	public Optional< UserDto > fetchStudentByLoginDetails( final String username, final String password ) {
 
 		final var sequence = new Object() {
 			Optional< UserEntity > student = Optional.empty();
@@ -188,7 +196,8 @@ public class StudentService {
 	}
 
 
-	public List< UserDto > fetchUsers( final Integer offset, final Integer limit ) {
+	@Override
+	public List< UserDto > fetchStudents( final Integer offset, final Integer limit ) {
 
 		final var sequence = new Object() {
 			List< UserEntity > students = Collections.emptyList();
@@ -204,7 +213,8 @@ public class StudentService {
 	}
 
 
-	public List< UserDto > fetchUsers( final Integer offset, final Integer limit, final String filterText ) {
+	@Override
+	public List< UserDto > fetchStudents( final Integer offset, final Integer limit, final String filterText ) {
 
 		final var sequence = new Object() {
 			List< UserEntity > students = Collections.emptyList();
@@ -220,7 +230,8 @@ public class StudentService {
 	}
 
 
-	public List< UserDto > fetchUsers( final Integer offset, final Integer limit, final UserFilter userFilter ) {
+	@Override
+	public List< UserDto > fetchStudents( final Integer offset, final Integer limit, final UserFilter userFilter ) {
 
 		final var sequence = new Object() {
 			List< UserEntity > students = Collections.emptyList();

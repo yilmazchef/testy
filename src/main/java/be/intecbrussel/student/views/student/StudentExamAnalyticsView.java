@@ -3,7 +3,6 @@ package be.intecbrussel.student.views.student;
 
 import be.intecbrussel.student.service.IExamService;
 import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Label;
@@ -16,7 +15,7 @@ import com.vaadin.flow.server.VaadinSession;
 import javax.annotation.security.PermitAll;
 
 @PageTitle( StudentExamAnalyticsView.TITLE )
-@Route( value = StudentExamAnalyticsView.ROUTE, layout = MainAppLayout.class )
+@Route( value = StudentExamAnalyticsView.ROUTE )
 @PermitAll
 public class StudentExamAnalyticsView extends AbstractView {
 

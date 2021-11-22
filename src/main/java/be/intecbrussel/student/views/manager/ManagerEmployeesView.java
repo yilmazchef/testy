@@ -7,7 +7,6 @@ import be.intecbrussel.student.service.IManagerService;
 import be.intecbrussel.student.service.IStudentService;
 import be.intecbrussel.student.service.ITeacherService;
 import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
@@ -23,8 +22,8 @@ import java.util.List;
 import static be.intecbrussel.student.views.manager.ManagerEmployeesView.ROUTE;
 import static be.intecbrussel.student.views.manager.ManagerEmployeesView.TITLE;
 
-@PageTitle( value = TITLE )
-@Route( value = ROUTE, layout = MainAppLayout.class )
+@PageTitle( TITLE )
+@Route( ROUTE )
 public class ManagerEmployeesView extends AbstractView {
 
 	public static final String ROUTE = "manager/employees";
@@ -32,7 +31,6 @@ public class ManagerEmployeesView extends AbstractView {
 
 	private final VaadinSession currentSession = VaadinSession.getCurrent();
 
-	private final MainAppLayout appLayout;
 	private final VerticalLayout employeesLayout;
 
 	private final AuthenticatedUser authenticatedUser;
@@ -41,11 +39,9 @@ public class ManagerEmployeesView extends AbstractView {
 	private final IStudentService studentService;
 
 
-	public ManagerEmployeesView( final MainAppLayout appLayout,
-	                             final AuthenticatedUser authenticatedUser,
+	public ManagerEmployeesView( final AuthenticatedUser authenticatedUser,
 	                             final IManagerService managerService, final ITeacherService teacherService, final IStudentService studentService ) {
 
-		this.appLayout = appLayout;
 		this.authenticatedUser = authenticatedUser;
 		this.managerService = managerService;
 		this.teacherService = teacherService;

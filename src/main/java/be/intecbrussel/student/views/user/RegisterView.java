@@ -3,11 +3,11 @@ package be.intecbrussel.student.views.user;
 
 import be.intecbrussel.student.data.entity.UserEntity;
 import be.intecbrussel.student.repository.UserRepository;
+import be.intecbrussel.student.views.AbstractView;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -18,11 +18,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.UUID;
+
+import static be.intecbrussel.student.views.user.RegisterView.ROUTE;
 
 @PageTitle( "Register" )
-@Route( "reg" )
+@Route( ROUTE )
 @AnonymousAllowed
-public class RegisterView extends VerticalLayout {
+public class RegisterView extends AbstractView {
+
+	public static final String TITLE = "Register";
+	public static final String ROUTE = "register";
 
 
 	public RegisterView( @Autowired UserRepository userRepository, @Autowired BCryptPasswordEncoder passwordEncoder ) {
@@ -35,7 +41,7 @@ public class RegisterView extends VerticalLayout {
 
 		final var usernameField = new TextField();
 		usernameField.addValueChangeListener( onChange -> {
-			emailField.setValue( onChange.getValue().concat( "@intecbrussel.be" ) );
+			emailField.setValue( onChange.getValue().toLowerCase( Locale.ROOT ).concat( "@intecbrussel.be" ) );
 			if ( emailField.isInvalid() ) {
 				usernameField.clear();
 			}
@@ -55,7 +61,8 @@ public class RegisterView extends VerticalLayout {
 		repeatField.setClearButtonVisible( true );
 		lastNameField.addValueChangeListener( onChange -> {
 			final var passwordsMatch = passwordField.getValue().contentEquals( onChange.getValue() );
-			if ( passwordsMatch && ( !passwordField.isEmpty() && !repeatField.isEmpty() ) ) {
+			if ( !passwordsMatch || ( passwordField.getValue().isEmpty() && repeatField.getValue().isEmpty() )
+					|| ( passwordField.getValue().length() < 8 ) ) {
 				passwordField.getStyle().set( "color", "red" );
 				passwordField.setInvalid( true );
 				repeatField.getStyle().set( "color", "red" );
@@ -87,10 +94,15 @@ public class RegisterView extends VerticalLayout {
 						.withEmail( emailField.getValue().toLowerCase( Locale.ROOT ) )
 						.withPassword( passwordEncoder.encode( passwordField.getValue() ) )
 						.withPhone( phoneField.getValue() )
-						.withRoles( "USER" );
+						.withRoles( "USER" )
+						.withActivation( UUID.randomUUID().toString() )
+						.withActive( Boolean.TRUE );
+
+				// TODO:  will be changed to false later when email-sending-feature is added.
 
 				final var savedUser = new Object() {
 					String newId = null;
+
 
 					boolean isNew() {
 
@@ -115,6 +127,13 @@ public class RegisterView extends VerticalLayout {
 
 		add( formLayout );
 
+	}
+
+
+	@Override
+	public String getViewName() {
+
+		return ROUTE;
 	}
 
 }

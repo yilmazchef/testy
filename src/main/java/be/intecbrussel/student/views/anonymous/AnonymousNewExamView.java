@@ -7,7 +7,6 @@ import be.intecbrussel.student.data.dto.TaskDto;
 import be.intecbrussel.student.service.IExamService;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.MainAppLayout;
 import be.intecbrussel.student.views.Priority;
 import be.intecbrussel.student.views.student.StudentExamAnalyticsView;
 import com.mlottmann.vstepper.VStepper;
@@ -33,8 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @PageTitle(AnonymousNewExamView.TITLE)
-@Route(value = "", layout = MainAppLayout.class)
-@RouteAlias(value = AnonymousNewExamView.ROUTE, layout = MainAppLayout.class)
+@Route("")
+@RouteAlias(value = AnonymousNewExamView.ROUTE)
 @AnonymousAllowed
 public class AnonymousNewExamView extends AbstractView implements HasUrlParameter<String> {
 
@@ -48,11 +47,9 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
     private final VStepper examStepper = new VStepper();
 
     private final IExamService examService;
-    private final MainAppLayout appLayout;
 
-    public AnonymousNewExamView(IExamService examService, MainAppLayout appLayout) {
+    public AnonymousNewExamView(IExamService examService) {
         this.examService = examService;
-        this.appLayout = appLayout;
 
         initParentComponentStyle();
 
@@ -131,7 +128,7 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
                     }
                 }
 
-                appLayout.getNotifications().add(new DefaultNotification(
+                getNotifications().add(new DefaultNotification(
                         "Question Submitted", "Question with " + patchCounter.get() + (patchCounter.get() == 1 ? " todo" : " todos") + " submitted"));
             }
 
@@ -147,7 +144,7 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
                     }
                 }
 
-                appLayout.getNotifications().add(new DefaultNotification(
+                getNotifications().add(new DefaultNotification(
                         "Question Submitted", "Question with " + patchCounter.get() + (patchCounter.get() == 1 ? " choice" : " choices") + " submitted"));
             }
 
@@ -187,7 +184,7 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
             if (noOfSelectedTodos > correctTasksCount) {
                 final var notificationMsg = "You cannot select more than " + correctTasksCount + " " + labelText + ".";
                 checkboxGroup.deselect(onSelect.getAddedSelection());
-                appLayout.getNotifications().add(new DefaultNotification("Warning", notificationMsg, Priority.LOW));
+                getNotifications().add(new DefaultNotification("Warning", notificationMsg, Priority.LOW));
             }
         });
 

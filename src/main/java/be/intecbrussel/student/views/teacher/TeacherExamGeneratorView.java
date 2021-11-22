@@ -12,7 +12,6 @@ import be.intecbrussel.student.service.IQuestionService;
 import be.intecbrussel.student.service.ITeacherService;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.MainAppLayout;
 import be.intecbrussel.student.views.Priority;
 import be.intecbrussel.student.views.student.StudentExamAnalyticsView;
 import com.mlottmann.vstepper.VStepper;
@@ -46,8 +45,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @PageTitle( TeacherExamGeneratorView.TITLE )
-@Route( value = TeacherExamGeneratorView.ROUTE, layout = MainAppLayout.class )
-@RolesAllowed( { "TEACHER", "MANAGER" } )
+@Route( value = TeacherExamGeneratorView.ROUTE )
+@RolesAllowed( { "ROLE_TEACHER", "ROLE_MANAGER" } )
 public class TeacherExamGeneratorView extends AbstractView {
 
 	public static final String TITLE = "Exam Generator";
@@ -60,17 +59,13 @@ public class TeacherExamGeneratorView extends AbstractView {
 	private final IExamService examService;
 	private final AuthenticatedUser authenticatedUser;
 
-	private final MainAppLayout appLayout;
-
-
 	public TeacherExamGeneratorView( IQuestionService questionService, ITeacherService teacherService, IExamService examService,
-	                                 final AuthenticatedUser authenticatedUser, MainAppLayout appLayout ) {
+	                                 final AuthenticatedUser authenticatedUser ) {
 
 		this.questionService = questionService;
 		this.teacherService = teacherService;
 		this.examService = examService;
 		this.authenticatedUser = authenticatedUser;
-		this.appLayout = appLayout;
 
 		initParentComponentStyle();
 
@@ -100,7 +95,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 					.count();
 
 			final var message = "An exam with " + examCode + " and with " + examsCount + ( examsCount == 1 ? "question" : "questions" ) + " is generated.";
-			appLayout.getNotifications().add( new DefaultNotification( "New Exam is Ready", message ) );
+			getNotifications().add( new DefaultNotification( "New Exam is Ready", message ) );
 
 		};
 	}
@@ -144,7 +139,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 			}
 
 		} catch ( SQLException sqlException ) {
-			appLayout.getNotifications().add( new DefaultNotification( "ERROR: LOADING QUESTIONS", sqlException.getMessage(), Priority.ERROR ) );
+			getNotifications().add( new DefaultNotification( "ERROR: LOADING QUESTIONS", sqlException.getMessage(), Priority.ERROR ) );
 		}
 
 	}
@@ -221,7 +216,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 				final var patchCounter = new AtomicInteger( 0 );
 
-				appLayout.getNotifications().add( new DefaultNotification(
+				getNotifications().add( new DefaultNotification(
 						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " todo" : " todos" ) + " submitted" ) );
 			}
 
@@ -231,7 +226,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 				final var patchCounter = new AtomicInteger( 0 );
 
-				appLayout.getNotifications().add( new DefaultNotification(
+				getNotifications().add( new DefaultNotification(
 						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " choice" : " choices" ) + " submitted" ) );
 			}
 

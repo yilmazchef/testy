@@ -29,14 +29,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 
 	@Override
-	public UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername( String key ) throws UsernameNotFoundException {
 
 		final Optional< UserEntity > oUser;
 		try {
-			oUser = userRepository.selectByUserName( username );
+			oUser = userRepository.selectByUniqueFields( key );
 
 			if ( oUser.isEmpty() ) {
-				throw new UsernameNotFoundException( "No user present with username: " + username );
+				throw new UsernameNotFoundException( "No user present with key: " + key );
 			} else {
 				return new org.springframework.security.core.userdetails.User( oUser.get().getUsername(),
 						oUser.get().getPassword(), getAuthorities( oUser.get() ) );

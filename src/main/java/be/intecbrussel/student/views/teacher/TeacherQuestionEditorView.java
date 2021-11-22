@@ -11,7 +11,6 @@ import be.intecbrussel.student.service.ITeacherService;
 import be.intecbrussel.student.util.QuestionBatchImporter;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.MainAppLayout;
 import be.intecbrussel.student.views.Priority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -44,8 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @PageTitle( TeacherQuestionEditorView.TITLE )
-@Route( value = TeacherQuestionEditorView.ROUTE, layout = MainAppLayout.class )
-@RolesAllowed( { "TEACHER", "MANAGER" } )
+@Route( value = TeacherQuestionEditorView.ROUTE )
+@RolesAllowed( { "ROLE_TEACHER", "ROLE_MANAGER" } )
 public class TeacherQuestionEditorView extends AbstractView {
 
 	public static final String TITLE = "Exam Designer";
@@ -57,17 +56,15 @@ public class TeacherQuestionEditorView extends AbstractView {
 	private final IQuestionService questionService;
 	private final ITeacherService teacherService;
 	private final QuestionBatchImporter batchImporter;
-	private final MainAppLayout appLayout;
     private final AuthenticatedUser authenticatedUser;
 
 
 	public TeacherQuestionEditorView( IQuestionService questionService, ITeacherService teacherService,
-                                      QuestionBatchImporter batchImporter, MainAppLayout appLayout, final AuthenticatedUser authenticatedUser ) {
+                                      QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
 
 		this.questionService = questionService;
 		this.teacherService = teacherService;
 		this.batchImporter = batchImporter;
-		this.appLayout = appLayout;
         this.authenticatedUser = authenticatedUser;
 
         initParentComponentStyle();
@@ -118,16 +115,16 @@ public class TeacherQuestionEditorView extends AbstractView {
 				stepper.getFinish().addClickListener( importQuestionsEvent( beans ) );
 
 				final var uploadMessage = beans.size() + " new questions with tasks from " + fileName;
-				appLayout.getNotifications().add( new DefaultNotification( "FILE UPLOAD", uploadMessage ) );
+				getNotifications().add( new DefaultNotification( "FILE UPLOAD", uploadMessage ) );
 
 			} catch ( IOException ioException ) {
-				appLayout.getNotifications()
+				getNotifications()
 						.add( new DefaultNotification( "ERROR: FILE READ", ioException.getMessage(), Priority.ERROR ) );
 			}
 
 		} );
 
-		uploadQuestion.addFileRejectedListener( onRejected -> appLayout.getNotifications()
+		uploadQuestion.addFileRejectedListener( onRejected -> getNotifications()
 				.add( new DefaultNotification( "ERROR: FILE UPLOAD", onRejected.getErrorMessage() ) ) );
 
 		batchImportLayout.add( uploadQuestion );
@@ -152,7 +149,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 			final var message = importedQuestions.size() + " question(s) with " + importedTasks.size()
 					+ " total tasks imported..";
-			appLayout.getNotifications().add( new DefaultNotification( "Question Batch Import", message ) );
+			getNotifications().add( new DefaultNotification( "Question Batch Import", message ) );
 		};
 	}
 
@@ -196,7 +193,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 					patchCounter.getAndIncrement();
 				}
 
-				appLayout.getNotifications().add( new DefaultNotification( "Question Updated !!", "Question with "
+				getNotifications().add( new DefaultNotification( "Question Updated !!", "Question with "
 						+ patchCounter.get() + ( patchCounter.get() == 1 ? " todo" : " todos" ) + " updated.." ) );
 			}
 
@@ -208,7 +205,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 					patchCounter.getAndIncrement();
 				}
 
-				appLayout.getNotifications().add( new DefaultNotification( "Question Updated !!", "Question with "
+				getNotifications().add( new DefaultNotification( "Question Updated !!", "Question with "
 						+ patchCounter.get() + ( patchCounter.get() == 1 ? " choice" : " choices" ) + " updated.." ) );
 			}
 
@@ -244,7 +241,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 			if ( noOfSelectedTodos > correctTasksCount ) {
 				final var notificationMsg = "You cannot select more than " + correctTasksCount + " " + labelText + ".";
 				checkboxGroup.deselect( onSelect.getAddedSelection() );
-				appLayout.getNotifications().add( new DefaultNotification( "Warning", notificationMsg, Priority.LOW ) );
+				getNotifications().add( new DefaultNotification( "Warning", notificationMsg, Priority.LOW ) );
 			}
 		} );
 

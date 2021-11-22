@@ -31,8 +31,6 @@ public interface IStudentService {
 
 	Integer getStudentsCountByFullName( final String firstName, final String lastName );
 
-	Integer getStudentsCountByClassName( final String className );
-
 	Optional< UserDto > fetchStudentById( final String studentId );
 
 	Optional< UserDto > fetchStudentByUserName( final String username );

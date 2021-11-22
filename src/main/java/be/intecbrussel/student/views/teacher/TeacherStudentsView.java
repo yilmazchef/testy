@@ -8,7 +8,6 @@ import be.intecbrussel.student.security.AuthenticatedUser;
 import be.intecbrussel.student.service.IStudentService;
 import be.intecbrussel.student.service.ITeacherService;
 import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
@@ -28,9 +27,9 @@ import java.util.Optional;
 import static be.intecbrussel.student.views.teacher.TeacherStudentsView.ROUTE;
 import static be.intecbrussel.student.views.teacher.TeacherStudentsView.TITLE;
 
-@PageTitle( value = TITLE )
-@Route( value = ROUTE, layout = MainAppLayout.class )
-@RolesAllowed( { "TEACHER", "MANAGER" } )
+@PageTitle( TITLE )
+@Route( ROUTE )
+@RolesAllowed( { "ROLE_TEACHER", "ROLE_MANAGER" } )
 public class TeacherStudentsView extends AbstractView {
 
 	public static final String ROUTE = "teacher/students";
@@ -41,13 +40,11 @@ public class TeacherStudentsView extends AbstractView {
 	private final ITeacherService teacherService;
 	private final IStudentService studentService;
 
-	private final MainAppLayout appLayout;
 	private final AuthenticatedUser authenticatedUser;
 
 
-	public TeacherStudentsView( ITeacherService teacherService, IStudentService studentService, MainAppLayout appLayout, final AuthenticatedUser authenticatedUser ) {
+	public TeacherStudentsView( ITeacherService teacherService, IStudentService studentService, final AuthenticatedUser authenticatedUser ) {
 
-		this.appLayout = appLayout;
 		this.authenticatedUser = authenticatedUser;
 		this.teacherService = teacherService;
 		this.studentService = studentService;

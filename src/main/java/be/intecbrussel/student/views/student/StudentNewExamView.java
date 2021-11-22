@@ -10,7 +10,6 @@ import be.intecbrussel.student.service.IExamService;
 import be.intecbrussel.student.service.IStudentService;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.MainAppLayout;
 import be.intecbrussel.student.views.Priority;
 import com.flowingcode.vaadin.addons.simpletimer.SimpleTimer;
 import com.mlottmann.vstepper.VStepper;
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @PageTitle( StudentNewExamView.TITLE )
-@Route( value = StudentNewExamView.ROUTE, layout = MainAppLayout.class )
+@Route( value = StudentNewExamView.ROUTE )
 @PermitAll
 public class StudentNewExamView extends AbstractView implements HasUrlParameter< String > {
 
@@ -50,7 +49,6 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 	private final VaadinSession currentSession = UI.getCurrent().getSession();
 
 	private final IExamService examService;
-	private final MainAppLayout appLayout;
 	private final IStudentService studentService;
 	private final AuthenticatedUser authenticatedUser;
 
@@ -63,10 +61,9 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 	private final Button startExamButton;
 
 
-	public StudentNewExamView( IExamService examService, MainAppLayout appLayout, IStudentService studentService, final AuthenticatedUser authenticatedUser ) {
+	public StudentNewExamView( IExamService examService, IStudentService studentService, final AuthenticatedUser authenticatedUser ) {
 
 		this.examService = examService;
-		this.appLayout = appLayout;
 		this.studentService = studentService;
 		this.authenticatedUser = authenticatedUser;
 
@@ -156,7 +153,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 	private void stopExamAndDisableSubmissions( final String code, final String session ) {
 
-		appLayout.getNotifications().add(
+		getNotifications().add(
 				new DefaultNotification( "EXAM " + code + " TIME IS OVER", "Exam stopped due timeout.. Current Session: " + session, Priority.HIGH ) );
 	}
 
@@ -187,7 +184,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 					}
 				}
 
-				appLayout.getNotifications().add( new DefaultNotification(
+				getNotifications().add( new DefaultNotification(
 						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " todo" : " todos" ) + " submitted" ) );
 			}
 
@@ -203,7 +200,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 					}
 				}
 
-				appLayout.getNotifications().add( new DefaultNotification(
+				getNotifications().add( new DefaultNotification(
 						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " choice" : " choices" ) + " submitted" ) );
 			}
 
@@ -244,7 +241,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 			if ( noOfSelectedTodos > correctTasksCount ) {
 				final var notificationMsg = "You cannot select more than " + correctTasksCount + " " + labelText + ".";
 				checkboxGroup.deselect( onSelect.getAddedSelection() );
-				appLayout.getNotifications().add( new DefaultNotification( "Warning", notificationMsg, Priority.LOW ) );
+				getNotifications().add( new DefaultNotification( "Warning", notificationMsg, Priority.LOW ) );
 			}
 		} );
 

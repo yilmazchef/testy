@@ -32,6 +32,8 @@ public interface IUserRepository {
 
 	Optional< UserEntity > selectForLogin( String username, String password ) throws SQLException;
 
+	Optional< UserEntity > selectByUniqueFields( String key ) throws SQLException;
+
 	Optional< UserEntity > selectByUserName( String username ) throws SQLException;
 
 	Optional< UserEntity > selectByEmail( String username ) throws SQLException;

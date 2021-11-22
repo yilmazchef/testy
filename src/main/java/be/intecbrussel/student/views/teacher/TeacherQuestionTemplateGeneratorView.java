@@ -8,7 +8,6 @@ import be.intecbrussel.student.service.IQuestionService;
 import be.intecbrussel.student.service.ITeacherService;
 import be.intecbrussel.student.util.QuestionBatchImporter;
 import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -27,9 +26,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@PageTitle( TeacherQuestionTemplateGeneratorView.TITLE )
-@Route( value = TeacherQuestionTemplateGeneratorView.ROUTE, layout = MainAppLayout.class )
-@RolesAllowed( { "MANAGER", "TEACHER" } )
+import static be.intecbrussel.student.views.teacher.TeacherQuestionTemplateGeneratorView.ROUTE;
+import static be.intecbrussel.student.views.teacher.TeacherQuestionTemplateGeneratorView.TITLE;
+
+@PageTitle( TITLE )
+@Route( ROUTE )
+@RolesAllowed( { "ROLE_MANAGER", "ROLE_TEACHER" } )
 public class TeacherQuestionTemplateGeneratorView extends AbstractView {
 
 	public static final String TITLE = "Question File Generator";
@@ -40,20 +42,15 @@ public class TeacherQuestionTemplateGeneratorView extends AbstractView {
 	private final IQuestionService questionService;
 	private final ITeacherService teacherService;
 	private final QuestionBatchImporter batchImporter;
-	private final MainAppLayout appLayout;
 	private final AuthenticatedUser authenticatedUser;
 
 
-	public TeacherQuestionTemplateGeneratorView(
-			IQuestionService questionService, ITeacherService teacherService,
-			QuestionBatchImporter batchImporter,
-			AuthenticatedUser authenticatedUser,
-			MainAppLayout appLayout ) {
+	public TeacherQuestionTemplateGeneratorView( IQuestionService questionService, ITeacherService teacherService,
+	                                             QuestionBatchImporter batchImporter, AuthenticatedUser authenticatedUser ) {
 
 		this.questionService = questionService;
 		this.teacherService = teacherService;
 		this.batchImporter = batchImporter;
-		this.appLayout = appLayout;
 		this.authenticatedUser = authenticatedUser;
 
 		initParentComponentStyle();

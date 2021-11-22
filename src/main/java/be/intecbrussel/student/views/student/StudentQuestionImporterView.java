@@ -13,7 +13,6 @@ import be.intecbrussel.student.service.IStudentService;
 import be.intecbrussel.student.util.QuestionBatchImporter;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.MainAppLayout;
 import be.intecbrussel.student.views.Priority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -41,7 +40,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @PageTitle( StudentQuestionImporterView.TITLE )
-@Route( value = StudentQuestionImporterView.ROUTE, layout = MainAppLayout.class )
+@Route( value = StudentQuestionImporterView.ROUTE )
 @PermitAll
 public class StudentQuestionImporterView extends AbstractView {
 
@@ -54,18 +53,16 @@ public class StudentQuestionImporterView extends AbstractView {
 	private final IQuestionService questionService;
 	private final IStudentService studentService;
 	private final QuestionBatchImporter batchImporter;
-	private final MainAppLayout appLayout;
 	private final AuthenticatedUser authenticatedUser;
 
 
 	public StudentQuestionImporterView( IExamService examService, IQuestionService questionService, IStudentService studentService,
-	                                    QuestionBatchImporter batchImporter, MainAppLayout appLayout, final AuthenticatedUser authenticatedUser ) {
+	                                    QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
 
 		this.examService = examService;
 		this.questionService = questionService;
 		this.studentService = studentService;
 		this.batchImporter = batchImporter;
-		this.appLayout = appLayout;
 		this.authenticatedUser = authenticatedUser;
 
 		initParentComponentStyle();
@@ -84,11 +81,12 @@ public class StudentQuestionImporterView extends AbstractView {
 		if ( oUser.isPresent() ) {
 			final var user = oUser.get();
 			userBeingSearched.userId = user.getId();
+			final var fetchedStudent = studentService.fetchStudentByUserName( userBeingSearched.userId );
+			add( initBatchImporterLayout( fetchedStudent.orElseGet( () -> new UserDto().withAnonymous( true ) ) ) );
+
 		}
 
-		final var fetchedStudent = studentService.fetchStudentByUserName( userBeingSearched.userId );
 
-		add( initBatchImporterLayout( fetchedStudent.orElseGet( () -> new UserDto().withAnonymous( true ) ) ) );
 	}
 
 
@@ -135,19 +133,19 @@ public class StudentQuestionImporterView extends AbstractView {
 					final var examsInitialized = initExams( student, code, importedQuestions );
 
 					final var questionImportMessage = "Question(s) from " + fileName + " is/are imported: ";
-					appLayout.getNotifications().add( new DefaultNotification( "Question Batch Import", questionImportMessage ) );
+					getNotifications().add( new DefaultNotification( "Question Batch Import", questionImportMessage ) );
 
 					uploadStatusDiv.removeAll();
 
 					if ( examsInitialized ) {
 						final var examsGeneratedMessage = "New exams based on the questions imported are generated..";
-						appLayout.getNotifications().add( new DefaultNotification( "New Exam", examsGeneratedMessage ) );
+						getNotifications().add( new DefaultNotification( "New Exam", examsGeneratedMessage ) );
 						UI.getCurrent().navigate( StudentNewExamView.class, new RouteParameters( "code", code ) );
 					}
 				}
 
 			} catch ( IOException ioException ) {
-				appLayout.getNotifications().add( new DefaultNotification( "ERROR", ioException.getMessage(), Priority.ERROR ) );
+				getNotifications().add( new DefaultNotification( "ERROR", ioException.getMessage(), Priority.ERROR ) );
 			}
 
 		} );
@@ -178,7 +176,7 @@ public class StudentQuestionImporterView extends AbstractView {
 				.count();
 
 		final var message = "An exam with " + examCode + " and with " + examsCount + ( examsCount == 1 ? "question" : "questions" ) + " is generated.";
-		appLayout.getNotifications().add( new DefaultNotification( "New Exam is Ready", message ) );
+		getNotifications().add( new DefaultNotification( "New Exam is Ready", message ) );
 
 		return examsCount > 0;
 	}

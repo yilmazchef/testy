@@ -211,6 +211,19 @@ public class UserRepository implements IUserRepository {
 
 
 	@Override
+	public Optional< UserEntity > selectByUniqueFields( String key ) throws SQLException {
+
+		if(key.contains( "@" )){
+			return selectByEmail( key );
+		} else if (key.matches( "(0/91)?[7-9][0-9]{9}" )){
+			return selectByPhone( key );
+		} else {
+			return selectByUserName( key );
+		}
+	}
+
+
+	@Override
 	public Optional< UserEntity > selectByUserName( String username ) throws SQLException {
 
 		if ( !existsByUserName( username ) ) {
@@ -219,8 +232,9 @@ public class UserRepository implements IUserRepository {
 
 		String sql = "SELECT * FROM testy_user WHERE username = ? AND active = TRUE AND authenticated = TRUE";
 		log.info( sql );
-		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), username ) );
+		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), username.toLowerCase() ) );
 	}
+
 
 	@Override
 	public Optional< UserEntity > selectByEmail( String email ) throws SQLException {
@@ -233,6 +247,7 @@ public class UserRepository implements IUserRepository {
 		log.info( sql );
 		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), email ) );
 	}
+
 
 	@Override
 	public Optional< UserEntity > selectByPhone( String phone ) throws SQLException {
@@ -261,7 +276,7 @@ public class UserRepository implements IUserRepository {
 
 
 	@Override
-	public boolean existsByUserId( String userId ) {
+	public boolean existsByUserId( final String userId ) {
 
 		final var sql = "SELECT COUNT(*) FROM testy_user WHERE id = ? AND active = TRUE";
 		log.info( sql );
@@ -275,7 +290,7 @@ public class UserRepository implements IUserRepository {
 
 		final var sql = "SELECT COUNT(*) FROM testy_user WHERE username = ? AND active = TRUE";
 		log.info( sql );
-		Integer count = jdbc.queryForObject( sql, Integer.class, username.toLowerCase( Locale.ROOT ) );
+		Integer count = jdbc.queryForObject( sql, Integer.class, username );
 		return count != null && count > 0;
 	}
 

@@ -1,1 +1,1 @@
-.\mvnw.cmd clean install -DskipTests -Pproduction spring-boot:run
+.\mvnw.cmd clean install -Pproduction spring-boot:run

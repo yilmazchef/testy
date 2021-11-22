@@ -3,7 +3,6 @@ package be.intecbrussel.student.views.anonymous;
 
 import be.intecbrussel.student.service.IExamService;
 import be.intecbrussel.student.views.AbstractView;
-import be.intecbrussel.student.views.MainAppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Label;
@@ -14,8 +13,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@PageTitle( AnonymousExamAnalyticsView.TITLE )
-@Route( value = AnonymousExamAnalyticsView.ROUTE, layout = MainAppLayout.class )
+import static be.intecbrussel.student.views.anonymous.AnonymousExamAnalyticsView.ROUTE;
+import static be.intecbrussel.student.views.anonymous.AnonymousExamAnalyticsView.TITLE;
+
+@PageTitle( TITLE )
+@Route( value = ROUTE )
 @AnonymousAllowed
 public class AnonymousExamAnalyticsView extends AbstractView {
 
@@ -65,7 +67,7 @@ public class AnonymousExamAnalyticsView extends AbstractView {
 	@Override
 	public String getViewName() {
 
-		return AnonymousExamAnalyticsView.ROUTE;
+		return ROUTE;
 	}
 
 }

@@ -4,7 +4,6 @@ package be.intecbrussel.student.views.commons;
 import be.intecbrussel.student.util.BarcodeGenerator;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.MainAppLayout;
 import be.intecbrussel.student.views.Priority;
 import com.flowingcode.vaadin.addons.simpletimer.SimpleTimer;
 import com.google.zxing.WriterException;
@@ -23,21 +22,22 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
-@PageTitle( ContinueOnAnotherDeviceView.TITLE )
-@Route( value = ContinueOnAnotherDeviceView.ROUTE, layout = MainAppLayout.class )
+import static be.intecbrussel.student.views.commons.ContinueOnAnotherDeviceView.ROUTE;
+import static be.intecbrussel.student.views.commons.ContinueOnAnotherDeviceView.TITLE;
+
+@PageTitle( TITLE )
+@Route( value = ROUTE )
 @AnonymousAllowed
 public class ContinueOnAnotherDeviceView extends AbstractView {
 
 	public static final String TITLE = "Continue with QR";
 	public static final String ROUTE = "continue_qr";
 
-	private final MainAppLayout appLayout;
 	private final BarcodeGenerator barcodeGenerator;
 
 
-	public ContinueOnAnotherDeviceView( MainAppLayout appLayout, BarcodeGenerator barcodeGenerator ) {
+	public ContinueOnAnotherDeviceView( BarcodeGenerator barcodeGenerator ) {
 
-		this.appLayout = appLayout;
 		this.barcodeGenerator = barcodeGenerator;
 
 		final var viewId = ROUTE + "_" + getCurrentSession().getSession().getId();
@@ -73,10 +73,10 @@ public class ContinueOnAnotherDeviceView extends AbstractView {
 
 			} catch ( WriterException writerException ) {
 				final var message = "Could not generate QR Code, WriterException :: " + writerException.getMessage();
-				appLayout.getNotifications().add( new DefaultNotification( "Error !!", message, Priority.ERROR ) );
+				getNotifications().add( new DefaultNotification( "Error !!", message, Priority.ERROR ) );
 			} catch ( IOException ioException ) {
 				final var message = "Could not generate QR Code, IOException :: " + ioException.getMessage();
-				appLayout.getNotifications().add( new DefaultNotification( "Error !!", message, Priority.ERROR ) );
+				getNotifications().add( new DefaultNotification( "Error !!", message, Priority.ERROR ) );
 			}
 		} );
 
@@ -85,7 +85,7 @@ public class ContinueOnAnotherDeviceView extends AbstractView {
 
 	private void cancelRequestAndContinue( String absoluteUrl ) {
 
-		final var recentRoute = absoluteUrl.replace( ContinueOnAnotherDeviceView.ROUTE, "" );
+		final var recentRoute = absoluteUrl.replace( ROUTE, "" );
 		UI.getCurrent().navigate( recentRoute );
 	}
 
