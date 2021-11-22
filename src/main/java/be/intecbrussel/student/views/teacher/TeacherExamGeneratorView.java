@@ -75,8 +75,11 @@ public class TeacherExamGeneratorView extends AbstractView {
 		}
 
 		if ( oUser.isPresent() ) {
-			final var oTeacher = teacherService.fetchTeacherById( oUser.get().getId() );
-			oTeacher.ifPresent( this::initExamsLayout );
+			final var user = oUser.get();
+			final var oTeacher = teacherService.fetchTeacherById( user.getId() );
+			oTeacher.ifPresent( teacher -> {
+				initExamsLayout( teacher );
+			} );
 		}
 	}
 

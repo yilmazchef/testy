@@ -1,35 +1,5 @@
 # noinspection SqlNoDataSourceInspectionForFile
 
-ALTER TABLE testy_exam
-    DROP FOREIGN KEY fk_student_to_exam;
-
-ALTER TABLE testy_exam
-    DROP FOREIGN KEY fk_organizer_to_exam;
-
-ALTER TABLE testy_exam
-    DROP FOREIGN KEY fk_task_to_exam;
-
-ALTER TABLE testy_solution
-    DROP FOREIGN KEY fk_teacher_to_solution;
-
-ALTER TABLE testy_solution
-    DROP FOREIGN KEY fk_exam_to_solution;
-
-ALTER TABLE testy_question
-    DROP FOREIGN KEY testy_teacher_to_question;
-
-ALTER TABLE testy_task
-    DROP FOREIGN KEY testy_question_to_task;
-
-ALTER TABLE testy_category
-    DROP FOREIGN KEY testy_parent_to_category;
-
-ALTER TABLE testy_tag
-    DROP FOREIGN KEY testy_category_to_tag;
-
-ALTER TABLE testy_tag
-    DROP FOREIGN KEY testy_question_to_tag;
-
 DROP TABLE IF EXISTS testy_solution;
 
 CREATE TABLE IF NOT EXISTS testy_solution
