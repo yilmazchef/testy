@@ -21,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.PageTitle;
@@ -36,7 +37,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @PageTitle( StudentQuestionImporterView.TITLE )
@@ -82,6 +82,7 @@ public class StudentQuestionImporterView extends AbstractView {
 			final var user = oUser.get();
 			userBeingSearched.userId = user.getId();
 			final var oStudent = studentService.fetchStudentById( userBeingSearched.userId );
+
 			oStudent.ifPresent( userDto -> {
 				Notification.show( userDto.getEmail() ).open();
 				add( initBatchImporterLayout( userDto ) );
@@ -95,6 +96,10 @@ public class StudentQuestionImporterView extends AbstractView {
 	private VerticalLayout initBatchImporterLayout( UserDto student ) {
 
 		final var importLayout = new VerticalLayout();
+		final var teacherCode = new TextField();
+		teacherCode.setRequired( true );
+		teacherCode.setPattern( "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}" );
+
 		final var buffer = new MemoryBuffer();
 		final var upload = new Upload( buffer );
 		final var uploadStatusDiv = new Div();
@@ -115,13 +120,13 @@ public class StudentQuestionImporterView extends AbstractView {
 
 				final var beans = Arrays.asList( yamlMapper.readValue( inputStream, QuestionDto[].class ) );
 
-
+				/*
 				final var countResponse = examService.countByQuestions(
 						beans.stream().map( QuestionDto::getId ).collect( Collectors.toUnmodifiableSet() ),
 						currentSession.getSession().getId() );
-
+				*/
 				for ( QuestionDto bean : beans ) {
-					bean.setTeacher( new UserDto().withAnonymous( true ).withId( UUID.randomUUID().toString() ) );
+					bean.setTeacher( new UserDto().withAnonymous( true ).withId( teacherCode.getValue() ) );
 				}
 
 				final var importedQuestions = batchImporter.batchImportQuestions( beans.toArray( QuestionDto[]::new ) );
@@ -164,7 +169,7 @@ public class StudentQuestionImporterView extends AbstractView {
 
 		upload.getElement().addEventListener( "file-remove", onRemoved -> uploadStatusDiv.removeAll() );
 
-		importLayout.add( upload, uploadStatusDiv );
+		importLayout.add( upload, uploadStatusDiv, teacherCode );
 
 		add( importLayout );
 
