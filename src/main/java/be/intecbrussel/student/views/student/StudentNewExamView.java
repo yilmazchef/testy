@@ -127,11 +127,11 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 		final var code = examCodeField.getValue();
 		final var patchResponses = examService.patchSession( code, currentSession.getSession().getId() );
-		if ( patchResponses.hasBody() && patchResponses.getBody() != null ) {
+		if ( patchResponses != null && !patchResponses.isEmpty() ) {
 			final var examsResponse = examService.selectAllByCode( code );
-			if ( examsResponse.hasBody() && examsResponse.getBody() != null ) {
+			if ( examsResponse != null && !examsResponse.isEmpty() ) {
 
-				examsResponse.getBody()
+				examsResponse
 						.stream()
 						.collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) )
 						.forEach( ( questionDTO, examDTOs ) -> stepper.addStep(
@@ -143,7 +143,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 				examTimer.setStartTime(
 						TimeUnit.MINUTES.toSeconds( 3 ) *
-								examsResponse.getBody().stream().collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) ).keySet().size()
+								examsResponse.stream().collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) ).keySet().size()
 				);
 				examTimer.start(); // START THE TIMER ..
 			}
@@ -179,7 +179,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 				final var patchCounter = new AtomicInteger( 0 );
 				for ( final var selectedTodo : selectedTodos ) {
 					final var examPatchResponse = examService.patchTask( selectedTodo.getId(), currentSession.getSession().getId(), true );
-					if ( examPatchResponse.hasBody() && examPatchResponse.getBody() != null ) {
+					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
 						patchCounter.getAndIncrement();
 					}
 				}
@@ -195,7 +195,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 				final var patchCounter = new AtomicInteger( 0 );
 				for ( final var selectedChoice : selectedChoices ) {
 					final var examPatchResponse = examService.patchTask( selectedChoice.getId(), currentSession.getSession().getId(), true );
-					if ( examPatchResponse.hasBody() && examPatchResponse.getBody() != null ) {
+					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
 						patchCounter.getAndIncrement();
 					}
 				}

@@ -45,11 +45,10 @@ public class StudentExamAnalyticsView extends AbstractView {
 		final var startExamButton = new Button( "Analyze Exam", onClick -> {
 			final var code = examCodeField.getValue();
 			final var examsResponse = examService.selectAllByCodeAndSession( code, session );
-			if ( examsResponse.hasBody() && examsResponse.getBody() != null ) {
-				final var exams = examsResponse.getBody();
-				add( new StudentExamResultsGrid( exams ) );
-				add( new StudentExamCharts( exams ) );
-				add( new StudentExamRecapStepper( exams ) );
+			if ( examsResponse != null && !examsResponse.isEmpty() ) {
+				add( new StudentExamResultsGrid( examsResponse ) );
+				add( new StudentExamCharts( examsResponse ) );
+				add( new StudentExamRecapStepper( examsResponse ) );
 			}
 		} );
 		startExamButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );

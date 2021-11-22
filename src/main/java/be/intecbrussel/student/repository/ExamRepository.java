@@ -85,10 +85,10 @@ public class ExamRepository implements IExamRepository {
 	@Override
 	public Long countByQuestions( final Set< String > questionIdSet, final String session ) throws SQLException {
 
-		String sql = "SELECT COUNT(*) FROM testy_exam \n" +
-				"INNER JOIN testy_task \n" +
-				"ON testy_exam.taskId = testy_task.id\n" +
-				"WHERE testy_task.questionId IN (?) AND testy_exam.session = ?";
+		String sql = "SELECT COUNT(*) FROM testy_exam" +
+				" INNER JOIN testy_task" +
+				" ON testy_exam.taskId = testy_task.id" +
+				" WHERE testy_task.questionId IN (?) AND testy_exam.session = ?";
 		EXAM_LOGGER.info( sql );
 		Long count = jdbcTemplate.queryForObject( sql, Long.class, questionIdSet, session );
 		return count != null ? count : 0;

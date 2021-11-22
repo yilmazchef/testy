@@ -13,7 +13,8 @@ import be.intecbrussel.student.service.IStudentService;
 import be.intecbrussel.student.util.QuestionBatchImporter;
 import be.intecbrussel.student.views.AbstractView;
 import be.intecbrussel.student.views.DefaultNotification;
-import be.intecbrussel.student.views.Priority;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.vaadin.flow.component.UI;
@@ -26,7 +27,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.server.VaadinSession;
-import org.springframework.http.HttpEntity;
 
 import javax.annotation.security.PermitAll;
 import java.io.IOException;
@@ -82,7 +82,10 @@ public class StudentQuestionImporterView extends AbstractView {
 			final var user = oUser.get();
 			userBeingSearched.userId = user.getId();
 			final var oStudent = studentService.fetchStudentById( userBeingSearched.userId );
-			oStudent.ifPresent( userDto -> add( initBatchImporterLayout( userDto ) ) );
+			oStudent.ifPresent( userDto -> {
+				Notification.show( userDto.getEmail() ).open();
+				add( initBatchImporterLayout( userDto ) );
+			} );
 		}
 
 
@@ -111,41 +114,46 @@ public class StudentQuestionImporterView extends AbstractView {
 				// other required data from DB to make sure tasks have weights..
 
 				final var beans = Arrays.asList( yamlMapper.readValue( inputStream, QuestionDto[].class ) );
+
+
 				final var countResponse = examService.countByQuestions(
 						beans.stream().map( QuestionDto::getId ).collect( Collectors.toUnmodifiableSet() ),
 						currentSession.getSession().getId() );
 
-				if ( countResponse.hasBody() ) {
-					for ( QuestionDto bean : beans ) {
-						bean.setTeacher( new UserDto().withAnonymous( true ).withId( UUID.randomUUID().toString() ) );
-					}
-
-					final var importedQuestions = batchImporter.batchImportQuestions( beans.toArray( QuestionDto[]::new ) );
-					final var importedTasks = importedQuestions
-							.stream()
-							.map( task -> batchImporter.batchImportTasks( task.getId(), task.getTasks().toArray( TaskDto[]::new ) ) )
-							.collect( Collectors.toUnmodifiableList() );
-
-					uploadStatusDiv.setText( importedQuestions.size() + " new questions with " + importedTasks.size() + " new tasks in total." );
-
-					final var code = fileName.replace( ".yaml", "" );
-					final var examsInitialized = initExams( student, code, importedQuestions );
-
-					final var questionImportMessage = "Question(s) from " + fileName + " is/are imported: ";
-					getNotifications().add( new DefaultNotification( "Question Batch Import", questionImportMessage ) );
-
-					uploadStatusDiv.removeAll();
-
-					if ( examsInitialized ) {
-						final var examsGeneratedMessage = "New exams based on the questions imported are generated..";
-						getNotifications().add( new DefaultNotification( "New Exam", examsGeneratedMessage ) );
-						UI.getCurrent().navigate( StudentNewExamView.class, new RouteParameters( "code", code ) );
-					}
+				for ( QuestionDto bean : beans ) {
+					bean.setTeacher( new UserDto().withAnonymous( true ).withId( UUID.randomUUID().toString() ) );
 				}
 
-			} catch ( IOException ioException ) {
-				getNotifications().add( new DefaultNotification( "ERROR", ioException.getMessage(), Priority.ERROR ) );
+				final var importedQuestions = batchImporter.batchImportQuestions( beans.toArray( QuestionDto[]::new ) );
+				final var importedTasks = importedQuestions
+						.stream()
+						.map( task -> batchImporter.batchImportTasks( task.getId(), task.getTasks().toArray( TaskDto[]::new ) ) )
+						.collect( Collectors.toUnmodifiableList() );
+
+				uploadStatusDiv.setText( importedQuestions.size() + " new questions with " + importedTasks.size() + " new tasks in total." );
+
+				final var code = fileName.replace( ".yaml", "" );
+				final var examsInitialized = initExams( student, code, importedQuestions );
+
+				final var questionImportMessage = "Question(s) from " + fileName + " is/are imported: ";
+				getNotifications().add( new DefaultNotification( "Question Batch Import", questionImportMessage ) );
+
+				uploadStatusDiv.removeAll();
+
+				if ( examsInitialized ) {
+					final var examsGeneratedMessage = "New exams based on the questions imported are generated..";
+					getNotifications().add( new DefaultNotification( "New Exam", examsGeneratedMessage ) );
+					UI.getCurrent().navigate( StudentNewExamView.class, new RouteParameters( "code", code ) );
+				}
+			} catch ( JsonMappingException e ) {
+
+
+			} catch ( JsonParseException e ) {
+				e.printStackTrace();
+			} catch ( IOException e ) {
+				e.printStackTrace();
 			}
+
 
 		} );
 
@@ -171,7 +179,7 @@ public class StudentQuestionImporterView extends AbstractView {
 				.flatMap( questionDto -> questionDto.getTasks().stream() )
 				.map( taskDto -> newExam( examCode, taskDto, student ) )
 				.map( examService::create )
-				.filter( HttpEntity::hasBody )
+				.filter( savedId -> !savedId.equalsIgnoreCase( "-1" ) )
 				.count();
 
 		final var message = "An exam with " + examCode + " and with " + examsCount + ( examsCount == 1 ? "question" : "questions" ) + " is generated.";

@@ -40,11 +40,10 @@ public class AnonymousExamAnalyticsView extends AbstractView {
 		final var startExamButton = new Button( "Analyze Exam", onClick -> {
 			final var code = examCodeField.getValue();
 			final var examsResponse = examService.selectAllByCodeAndSession( code, getCurrentSession().getSession().getId() );
-			if ( examsResponse.hasBody() && examsResponse.getBody() != null ) {
-				final var exams = examsResponse.getBody();
-				add( new AnonymousExamResultsGrid( exams ) );
-				add( new AnonymousExamCharts( exams ) );
-				add( new AnonymousExamRecapStepper( exams ) );
+			if ( examsResponse != null && !examsResponse.isEmpty() ) {
+				add( new AnonymousExamResultsGrid( examsResponse ) );
+				add( new AnonymousExamCharts( examsResponse ) );
+				add( new AnonymousExamRecapStepper( examsResponse ) );
 			}
 		} );
 		startExamButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );

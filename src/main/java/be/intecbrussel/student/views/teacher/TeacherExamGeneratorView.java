@@ -32,7 +32,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
-import org.springframework.http.HttpEntity;
 
 import javax.annotation.security.RolesAllowed;
 import java.sql.SQLException;
@@ -58,6 +57,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 	private final ITeacherService teacherService;
 	private final IExamService examService;
 	private final AuthenticatedUser authenticatedUser;
+
 
 	public TeacherExamGeneratorView( IQuestionService questionService, ITeacherService teacherService, IExamService examService,
 	                                 final AuthenticatedUser authenticatedUser ) {
@@ -91,7 +91,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 					.flatMap( questionDto -> questionDto.getTasks().stream() )
 					.map( taskDto -> newExam( examCode, taskDto ) )
 					.map( examService::create )
-					.filter( HttpEntity::hasBody )
+					.filter( savedId -> !savedId.equalsIgnoreCase( "-1" ) )
 					.count();
 
 			final var message = "An exam with " + examCode + " and with " + examsCount + ( examsCount == 1 ? "question" : "questions" ) + " is generated.";
@@ -117,13 +117,12 @@ public class TeacherExamGeneratorView extends AbstractView {
 	private void initExamsLayout( final UserDto teacher ) {
 
 		final var examResponse = examService.selectAllBySession();
-		final var exams = examResponse.getBody();
 
-		if ( examResponse.hasBody() && exams != null && !exams.isEmpty() ) {
+		if ( examResponse != null && !examResponse.isEmpty() ) {
 
 			final var examsListBox = new ListBox< String >();
 
-			exams
+			examResponse
 					.stream()
 					.collect( Collectors.groupingBy( ExamDto::getCode ) )
 					.forEach( ( examCode, examData ) ->

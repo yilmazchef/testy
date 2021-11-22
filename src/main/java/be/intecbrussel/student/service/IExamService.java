@@ -1,7 +1,7 @@
 package be.intecbrussel.student.service;
 
+
 import be.intecbrussel.student.data.dto.ExamDto;
-import org.springframework.http.HttpEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -9,29 +9,29 @@ import java.util.Set;
 
 public interface IExamService {
 
-    HttpEntity<Long> countByQuestions(final Set<String> questionIdSet, final String sessionId);
+    Long countByQuestions(final Set<String> questionIdSet, final String sessionId);
 
-    HttpEntity<String> create(final ExamDto exam);
+    String create(final ExamDto exam);
 
-    HttpEntity<String> update(final ExamDto exam);
+    String update(final ExamDto exam);
 
-    HttpEntity<String> patch(final String examId, final Boolean isSelected);
+    String patch(final String examId, final Boolean isSelected);
 
-    HttpEntity<String> patchTask(final String taskId, final String session, final Boolean isSelected);
+    String patchTask(final String taskId, final String session, final Boolean isSelected);
 
-    HttpEntity<List<String>> patchSession(final String examCode, final String session);
+    List<String> patchSession(final String examCode, final String session);
 
-    HttpEntity<String> delete(final String examId);
+    String delete(final String examId);
 
-    HttpEntity<ExamDto> select(final String examId);
+    ExamDto select(final String examId);
 
-    HttpEntity<List<ExamDto>> selectAllBySession();
+    List<ExamDto> selectAllBySession();
 
-    HttpEntity<List<ExamDto>> selectAllByCode(final String code);
+    List<ExamDto> selectAllByCode(final String code);
 
-    HttpEntity<List<ExamDto>> selectAllByCodeAndSession(final String code, final String session);
+    List<ExamDto> selectAllByCodeAndSession(final String code, final String session);
 
-    HttpEntity<List<ExamDto>> selectAllBySession(final String session);
+    List<ExamDto> selectAllBySession(final String session);
 
-    HttpEntity<Map<String, List<ExamDto>>> selectAllExamsGroupedByCode();
+    Map<String, List<ExamDto>> selectAllExamsGroupedByCode();
 }

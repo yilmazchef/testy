@@ -31,190 +31,203 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@PageTitle(AnonymousNewExamView.TITLE)
-@Route("")
-@RouteAlias(value = AnonymousNewExamView.ROUTE)
+@PageTitle( AnonymousNewExamView.TITLE )
+@Route( "" )
+@RouteAlias( value = AnonymousNewExamView.ROUTE )
 @AnonymousAllowed
-public class AnonymousNewExamView extends AbstractView implements HasUrlParameter<String> {
+public class AnonymousNewExamView extends AbstractView implements HasUrlParameter< String > {
 
-    private static final Logger ANONYMOUS_VIEW_LOGGER = LoggerFactory.getLogger(AnonymousNewExamView.class);
+	private static final Logger ANONYMOUS_VIEW_LOGGER = LoggerFactory.getLogger( AnonymousNewExamView.class );
 
-    public static final String TITLE = "Anonymous Exam";
-    public static final String ROUTE = "anonymous/exam";
-    private final VaadinSession currentSession = UI.getCurrent().getSession();
+	public static final String TITLE = "Anonymous Exam";
+	public static final String ROUTE = "anonymous/exam";
+	private final VaadinSession currentSession = UI.getCurrent().getSession();
 
-    private final Label examCodeLabel = new Label();
-    private final VStepper examStepper = new VStepper();
+	private final Label examCodeLabel = new Label();
+	private final VStepper examStepper = new VStepper();
 
-    private final IExamService examService;
+	private final IExamService examService;
 
-    public AnonymousNewExamView(IExamService examService) {
-        this.examService = examService;
 
-        initParentComponentStyle();
+	public AnonymousNewExamView( IExamService examService ) {
 
-        examStepper.setSizeFull();
-        examStepper.getNext().setIcon(VaadinIcon.ARROW_RIGHT.create());
-        examStepper.getNext().setVisible(false);
-        examStepper.getBack().setIcon(VaadinIcon.ARROW_LEFT.create());
-        examStepper.getFinish().setIcon(VaadinIcon.CHECK.create());
+		this.examService = examService;
 
-        final var examStarterLayout = new VerticalLayout();
-        examStarterLayout.setWidthFull();
-        examStarterLayout.setAlignItems(Alignment.CENTER);
-        examStarterLayout.setPadding(false);
+		initParentComponentStyle();
 
-        final var examCodeField = new TextField();
-        final var startExamButton = new Button("Start Exam", onClick -> {
-            final var code = examCodeField.getValue();
-            final var patchResponses = examService.patchSession(code, currentSession.getSession().getId());
-            if (patchResponses.hasBody() && patchResponses.getBody() != null) {
-                final var examsResponse = examService.selectAllByCode(code);
-                if (examsResponse.hasBody() && examsResponse.getBody() != null) {
-                    examStepper.getNext().setVisible(true);
-                    add(initSingleExamStepperLayout(code, examsResponse.getBody()));
-                }
-            }
-        });
-        startExamButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		examStepper.setSizeFull();
+		examStepper.getNext().setIcon( VaadinIcon.ARROW_RIGHT.create() );
+		examStepper.getNext().setVisible( false );
+		examStepper.getBack().setIcon( VaadinIcon.ARROW_LEFT.create() );
+		examStepper.getFinish().setIcon( VaadinIcon.CHECK.create() );
 
-        examStarterLayout.add(examCodeLabel, examCodeField, startExamButton);
-        examStepper.addStep(examStarterLayout);
+		final var examStarterLayout = new VerticalLayout();
+		examStarterLayout.setWidthFull();
+		examStarterLayout.setAlignItems( Alignment.CENTER );
+		examStarterLayout.setPadding( false );
 
-        examStepper.addFinishListener(onFinishClick -> getUI().ifPresent(ui -> ui.navigate(StudentExamAnalyticsView.class)));
+		final var examCodeField = new TextField();
+		final var startExamButton = new Button( "Start Exam", onClick -> {
+			final var code = examCodeField.getValue();
+			final var patchResponses = examService.patchSession( code, currentSession.getSession().getId() );
 
-        add(examStepper);
-    }
+			if ( patchResponses != null && !patchResponses.isEmpty() ) {
+				final var examsResponse = examService.selectAllByCode( code );
+				if ( examsResponse != null && !examsResponse.isEmpty() ) {
+					examStepper.getNext().setVisible( true );
+					add( initSingleExamStepperLayout( code, examsResponse ) );
+				}
+			}
+		} );
+		startExamButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );
 
-    private VStepper initSingleExamStepperLayout(final String examCode, final List<ExamDto> exams) {
+		examStarterLayout.add( examCodeLabel, examCodeField, startExamButton );
+		examStepper.addStep( examStarterLayout );
 
-        examCodeLabel.setText("Exam: " + examCode);
+		examStepper.addFinishListener( onFinishClick -> getUI().ifPresent( ui -> ui.navigate( StudentExamAnalyticsView.class ) ) );
 
-        exams
-                .stream()
-                .collect(Collectors.groupingBy(examDto -> examDto.getTask().getQuestion()))
-                .forEach((questionDto, examDtos) -> examStepper.addStep(
-                        "Question", initSingleQuestionLayout(
-                                questionDto, examDtos.stream().map(ExamDto::getTask).collect(Collectors.toUnmodifiableList()))
-                        )
-                );
+		add( examStepper );
+	}
 
-        return examStepper;
-    }
 
-    private VerticalLayout initSingleQuestionLayout(QuestionDto question, List<TaskDto> tasks) {
+	private VStepper initSingleExamStepperLayout( final String examCode, final List< ExamDto > exams ) {
 
-        final var layout = new VerticalLayout();
-        layout.setId(String.valueOf((int) System.currentTimeMillis()));
+		examCodeLabel.setText( "Exam: " + examCode );
 
-        layout.add(new H3(question.getHeader()));
-        question.getContent().stream().map(Paragraph::new).forEach(layout::add);
+		exams
+				.stream()
+				.collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) )
+				.forEach( ( questionDto, examDtos ) -> examStepper.addStep(
+								"Question", initSingleQuestionLayout(
+										questionDto, examDtos.stream().map( ExamDto::getTask ).collect( Collectors.toUnmodifiableList() ) )
+						)
+				);
 
-        final var choicesCheckBoxGroup = initTaskLayout("Choices", question, tasks.stream().filter(taskDto -> taskDto.getType() == TaskDto.Type.CHOICE).collect(Collectors.toUnmodifiableList()));
-        final var todosCheckBoxGroup = initTaskLayout("Task(s)", question, tasks.stream().filter(taskDto -> taskDto.getType() == TaskDto.Type.TODO).collect(Collectors.toUnmodifiableList()));
-        layout.add(choicesCheckBoxGroup, todosCheckBoxGroup);
+		return examStepper;
+	}
 
-        final var submitButton = new Button("Submit", onClick -> {
 
-            if (!todosCheckBoxGroup.isEmpty() && !todosCheckBoxGroup.getSelectedItems().isEmpty()) {
-                final var selectedTodos = todosCheckBoxGroup.getValue();
-                todosCheckBoxGroup.setEnabled(false);
+	private VerticalLayout initSingleQuestionLayout( QuestionDto question, List< TaskDto > tasks ) {
 
-                final var patchCounter = new AtomicInteger(0);
-                for (final var selectedTodo : selectedTodos) {
-                    final var examPatchResponse = examService.patchTask(selectedTodo.getId(), currentSession.getSession().getId(), true);
-                    if (examPatchResponse.hasBody() && examPatchResponse.getBody() != null) {
-                        patchCounter.getAndIncrement();
-                    }
-                }
+		final var layout = new VerticalLayout();
+		layout.setId( String.valueOf( ( int ) System.currentTimeMillis() ) );
 
-                getNotifications().add(new DefaultNotification(
-                        "Question Submitted", "Question with " + patchCounter.get() + (patchCounter.get() == 1 ? " todo" : " todos") + " submitted"));
-            }
+		layout.add( new H3( question.getHeader() ) );
+		question.getContent().stream().map( Paragraph::new ).forEach( layout::add );
 
-            if (!choicesCheckBoxGroup.isEmpty() && !choicesCheckBoxGroup.getSelectedItems().isEmpty()) {
-                final var selectedChoices = choicesCheckBoxGroup.getValue();
-                choicesCheckBoxGroup.setEnabled(false);
+		final var choicesCheckBoxGroup = initTaskLayout( "Choices", question, tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.CHOICE ).collect( Collectors.toUnmodifiableList() ) );
+		final var todosCheckBoxGroup = initTaskLayout( "Task(s)", question, tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.TODO ).collect( Collectors.toUnmodifiableList() ) );
+		layout.add( choicesCheckBoxGroup, todosCheckBoxGroup );
 
-                final var patchCounter = new AtomicInteger(0);
-                for (final var selectedChoice : selectedChoices) {
-                    final var examPatchResponse = examService.patchTask(selectedChoice.getId(), currentSession.getSession().getId(), true);
-                    if (examPatchResponse.hasBody() && examPatchResponse.getBody() != null) {
-                        patchCounter.getAndIncrement();
-                    }
-                }
+		final var submitButton = new Button( "Submit", onClick -> {
 
-                getNotifications().add(new DefaultNotification(
-                        "Question Submitted", "Question with " + patchCounter.get() + (patchCounter.get() == 1 ? " choice" : " choices") + " submitted"));
-            }
+			if ( !todosCheckBoxGroup.isEmpty() && !todosCheckBoxGroup.getSelectedItems().isEmpty() ) {
+				final var selectedTodos = todosCheckBoxGroup.getValue();
+				todosCheckBoxGroup.setEnabled( false );
 
-            // disable button after submission ..
-            onClick.getSource().setEnabled(false);
+				final var patchCounter = new AtomicInteger( 0 );
+				for ( final var selectedTodo : selectedTodos ) {
+					final var examPatchResponse = examService.patchTask( selectedTodo.getId(), currentSession.getSession().getId(), true );
+					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
+						patchCounter.getAndIncrement();
+					}
+				}
 
-        });
-        submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+				getNotifications().add( new DefaultNotification(
+						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " todo" : " todos" ) + " submitted" ) );
+			}
 
-        layout.add(submitButton);
-        return layout;
+			if ( !choicesCheckBoxGroup.isEmpty() && !choicesCheckBoxGroup.getSelectedItems().isEmpty() ) {
+				final var selectedChoices = choicesCheckBoxGroup.getValue();
+				choicesCheckBoxGroup.setEnabled( false );
 
-    }
+				final var patchCounter = new AtomicInteger( 0 );
+				for ( final var selectedChoice : selectedChoices ) {
+					final var examPatchResponse = examService.patchTask( selectedChoice.getId(), currentSession.getSession().getId(), true );
+					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
+						patchCounter.getAndIncrement();
+					}
+				}
 
-    private CheckboxGroup<TaskDto> initTaskLayout(String labelText, QuestionDto question, List<TaskDto> tasks) {
+				getNotifications().add( new DefaultNotification(
+						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " choice" : " choices" ) + " submitted" ) );
+			}
 
-        final var checkboxGroup = new CheckboxGroup<TaskDto>();
-        checkboxGroup.setThemeName(RadioGroupVariant.LUMO_VERTICAL.getVariantName());
-        checkboxGroup.setRequired(true);
+			// disable button after submission ..
+			onClick.getSource().setEnabled( false );
 
-        if (tasks.isEmpty()) {
-            checkboxGroup.setVisible(false);
-            return checkboxGroup;
-        }
+		} );
+		submitButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );
 
-        checkboxGroup.setId(labelText + "CheckboxGroup_" + question.getId());
-        checkboxGroup.setItems(tasks);
-        final var correctTasksCount = tasks.stream().filter(choice -> choice.getWeight() > 0.00).count();
-        final var allTasksCount = tasks.size();
-        checkboxGroup.setLabel(
-                labelText.contains("Choice") ?
-                        "Only" + correctTasksCount + " " + ((correctTasksCount <= 1) ? "choice is" : "choices are") + " correct from " + allTasksCount + " " + ((correctTasksCount <= 1) ? "choice" : "choices") :
-                        allTasksCount + " to complete."
-        );
-        checkboxGroup.addSelectionListener(onSelect -> {
-            int noOfSelectedTodos = onSelect.getAllSelectedItems().size();
-            if (noOfSelectedTodos > correctTasksCount) {
-                final var notificationMsg = "You cannot select more than " + correctTasksCount + " " + labelText + ".";
-                checkboxGroup.deselect(onSelect.getAddedSelection());
-                getNotifications().add(new DefaultNotification("Warning", notificationMsg, Priority.LOW));
-            }
-        });
+		layout.add( submitButton );
+		return layout;
 
-        return checkboxGroup;
+	}
 
-    }
 
-    private void initParentComponentStyle() {
-        setWidthFull();
-        setMargin(false);
-        setPadding(false);
-        setHorizontalComponentAlignment(Alignment.CENTER);
-    }
+	private CheckboxGroup< TaskDto > initTaskLayout( String labelText, QuestionDto question, List< TaskDto > tasks ) {
 
-    @Override
-    public String getViewName() {
-        return AnonymousNewExamView.ROUTE;
-    }
+		final var checkboxGroup = new CheckboxGroup< TaskDto >();
+		checkboxGroup.setThemeName( RadioGroupVariant.LUMO_VERTICAL.getVariantName() );
+		checkboxGroup.setRequired( true );
 
-    @Override
-    public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        if (parameter != null) {
-            final var location = event.getLocation();
-            final var queryParameters = location.getQueryParameters();
+		if ( tasks.isEmpty() ) {
+			checkboxGroup.setVisible( false );
+			return checkboxGroup;
+		}
 
-            final var parametersMap = queryParameters.getParameters();
-            parametersMap.forEach((k, v) -> {
-                ANONYMOUS_VIEW_LOGGER.info("Location: " + location.getPath() + "Parameter Key: " + k + ", Parameter Values: " + v.stream().collect(Collectors.joining(",")));
-            });
+		checkboxGroup.setId( labelText + "CheckboxGroup_" + question.getId() );
+		checkboxGroup.setItems( tasks );
+		final var correctTasksCount = tasks.stream().filter( choice -> choice.getWeight() > 0.00 ).count();
+		final var allTasksCount = tasks.size();
+		checkboxGroup.setLabel(
+				labelText.contains( "Choice" ) ?
+						"Only" + correctTasksCount + " " + ( ( correctTasksCount <= 1 ) ? "choice is" : "choices are" ) + " correct from " + allTasksCount + " " + ( ( correctTasksCount <= 1 ) ? "choice" : "choices" ) :
+						allTasksCount + " to complete."
+		);
+		checkboxGroup.addSelectionListener( onSelect -> {
+			int noOfSelectedTodos = onSelect.getAllSelectedItems().size();
+			if ( noOfSelectedTodos > correctTasksCount ) {
+				final var notificationMsg = "You cannot select more than " + correctTasksCount + " " + labelText + ".";
+				checkboxGroup.deselect( onSelect.getAddedSelection() );
+				getNotifications().add( new DefaultNotification( "Warning", notificationMsg, Priority.LOW ) );
+			}
+		} );
 
-        }
-    }
+		return checkboxGroup;
+
+	}
+
+
+	private void initParentComponentStyle() {
+
+		setWidthFull();
+		setMargin( false );
+		setPadding( false );
+		setHorizontalComponentAlignment( Alignment.CENTER );
+	}
+
+
+	@Override
+	public String getViewName() {
+
+		return AnonymousNewExamView.ROUTE;
+	}
+
+
+	@Override
+	public void setParameter( BeforeEvent event, @OptionalParameter String parameter ) {
+
+		if ( parameter != null ) {
+			final var location = event.getLocation();
+			final var queryParameters = location.getQueryParameters();
+
+			final var parametersMap = queryParameters.getParameters();
+			parametersMap.forEach( ( k, v ) -> {
+				ANONYMOUS_VIEW_LOGGER.info( "Location: " + location.getPath() + "Parameter Key: " + k + ", Parameter Values: " + v.stream().collect( Collectors.joining( "," ) ) );
+			} );
+
+		}
+	}
+
 }
