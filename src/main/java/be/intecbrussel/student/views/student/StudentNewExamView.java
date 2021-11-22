@@ -13,7 +13,6 @@ import be.intecbrussel.student.views.DefaultNotification;
 import be.intecbrussel.student.views.Priority;
 import com.flowingcode.vaadin.addons.simpletimer.SimpleTimer;
 import com.mlottmann.vstepper.VStepper;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -25,7 +24,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.VaadinSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +44,6 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 	public static final String TITLE = "Student Exam";
 	public static final String ROUTE = "student/exam";
-	private final VaadinSession currentSession = UI.getCurrent().getSession();
 
 	private final IExamService examService;
 	private final IStudentService studentService;
@@ -78,7 +75,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 		this.examTimer.getStyle().set( "font-size", "24pt" );
 		this.examTimer.setMinutes( true );
 		this.examTimer.setFractions( false );
-		this.examTimer.addTimerEndEvent( onTimeOutEvent -> stopExamAndDisableSubmissions( this.examCodeField.getValue(), currentSession.getSession().getId() ) );
+		this.examTimer.addTimerEndEvent( onTimeOutEvent -> stopExamAndDisableSubmissions( this.examCodeField.getValue(), getCurrentSession().getSession().getId() ) );
 
 		initParentStyle();
 
@@ -102,7 +99,11 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 		this.startExamButton.addClickListener( onClick -> {
 			this.startExamButton.setText( onClick.getClickCount() % 2 == 0 ? "Stop" : "Start" );
-			startExamEvent();
+			if ( onClick.getClickCount() == 1 ) {
+				startExamEvent();
+			} else {
+				this.stepper.getNext().setEnabled( this.stepper.getNext().getElement().isEnabled() );
+			}
 		} );
 
 		initStepperStyle();
@@ -129,7 +130,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 	private void startExamEvent() {
 
 		final var code = examCodeField.getValue();
-		final var patchResponses = examService.patchSession( code, currentSession.getSession().getId() );
+		final var patchResponses = examService.patchSession( code, getCurrentSession().getSession().getId() );
 		if ( patchResponses != null && !patchResponses.isEmpty() ) {
 			final var examsResponse = examService.selectAllByCode( code );
 			if ( examsResponse != null && !examsResponse.isEmpty() ) {
@@ -158,6 +159,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 		getNotifications().add(
 				new DefaultNotification( "EXAM " + code + " TIME IS OVER", "Exam stopped due timeout.. Current Session: " + session, Priority.HIGH ) );
+		this.stepper.getNext().setEnabled( false );
 	}
 
 
@@ -181,7 +183,8 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 				final var patchCounter = new AtomicInteger( 0 );
 				for ( final var selectedTodo : selectedTodos ) {
-					final var examPatchResponse = examService.patchTask( selectedTodo.getId(), currentSession.getSession().getId(), true );
+					final var examPatchResponse = examService.patchTask( selectedTodo.getId(), getCurrentSession().getSession().getId()
+							, true );
 					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
 						patchCounter.getAndIncrement();
 					}
@@ -197,7 +200,8 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 				final var patchCounter = new AtomicInteger( 0 );
 				for ( final var selectedChoice : selectedChoices ) {
-					final var examPatchResponse = examService.patchTask( selectedChoice.getId(), currentSession.getSession().getId(), true );
+					final var examPatchResponse = examService.patchTask( selectedChoice.getId(),
+							getCurrentSession().getSession().getId(), true );
 					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
 						patchCounter.getAndIncrement();
 					}

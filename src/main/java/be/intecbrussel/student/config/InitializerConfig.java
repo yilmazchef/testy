@@ -26,6 +26,7 @@ public class InitializerConfig implements CommandLineRunner {
 		this.importer
 				.withAdmin(
 						new UserEntity()
+								.withId( "BOT" )
 								.withActivation( UUID.randomUUID().toString() )
 								.withPassword("P@ssw0rd" )
 								.withUsername( "testy.bot" )

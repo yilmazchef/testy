@@ -1,5 +1,6 @@
 package be.intecbrussel.student.repository;
 
+
 import be.intecbrussel.student.data.entity.QuestionEntity;
 import be.intecbrussel.student.data.entity.TaskEntity;
 import org.slf4j.Logger;
@@ -17,114 +18,156 @@ import java.util.UUID;
 @Repository
 public class QuestionRepository implements IQuestionRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-    private static final Logger QUESTION_LOGGER = LoggerFactory.getLogger(QuestionRepository.class);
-
-    @Autowired
-    public QuestionRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    @Override
-    public Long count() {
-        String sql = "SELECT COUNT(*) FROM testy_question WHERE active = TRUE";
-        QUESTION_LOGGER.info(sql);
-        Long count = jdbcTemplate.queryForObject(sql, Long.class);
-        return count != null ? count : 0;
-    }
-
-    @Override
-    public String save(QuestionEntity question) throws SQLException {
-        String sql = "INSERT INTO testy_question (id, orderNo, header, content, weight, teacherId) values (?, ?, ?, ?, ?, ?)";
-        QUESTION_LOGGER.info(sql);
-
-        if (question.getId() == null)
-            question.setId(UUID.randomUUID().toString());
-        int questionInsertCount = jdbcTemplate.update(sql,
-                question.getId(), question.getOrderNo(), question.getHeader(), question.getContent(), question.getWeight(), question.getTeacherId());
-
-        if (questionInsertCount <= 0)
-            throw new SQLException("question could not be saved.");
-
-        return question.getId();
-    }
-
-    @Override
-    public String save(QuestionEntity question, List<TaskEntity> tasks) throws SQLException {
-        String sql = "INSERT INTO testy_question (id, orderNo, header, content, weight, teacherId) values (?, ?, ?, ?, ?, ?)";
-        QUESTION_LOGGER.info(sql);
-
-        if (question.getId() == null)
-            question.setId(UUID.randomUUID().toString());
-        int questionInsertCount = jdbcTemplate.update(sql,
-                question.getId(), question.getOrderNo(), question.getHeader(), question.getContent(), question.getWeight(), question.getTeacherId());
+	private final JdbcTemplate jdbcTemplate;
+	private static final Logger QUESTION_LOGGER = LoggerFactory.getLogger( QuestionRepository.class );
 
 
-        if (questionInsertCount <= 0) throw new SQLException("question could not be added");
+	@Autowired
+	public QuestionRepository( JdbcTemplate jdbcTemplate ) {
 
-        for (TaskEntity task : tasks) {
-            String sqlChoice = "INSERT INTO task (id, value, orderNo, weight, type, questionId) VALUES (?, ?, ?, ?, ?, ?)";
-            QUESTION_LOGGER.info(sqlChoice);
+		this.jdbcTemplate = jdbcTemplate;
+	}
 
-            int insertCount = jdbcTemplate.update(sqlChoice,
-                    task.getId(), task.getValue(), task.getOrderNo(), task.getWeight(), task.getType(), task.getQuestionId());
-            if (insertCount <= 0)
-                throw new SQLException("choice could not be added to question with ID: " + question.getId());
+
+	@Override
+	public Long count() {
+
+		String sql = "SELECT COUNT(*) FROM testy_question WHERE active = TRUE";
+		QUESTION_LOGGER.info( sql );
+		Long count = jdbcTemplate.queryForObject( sql, Long.class );
+		return count != null ? count : 0;
+	}
+
+
+	@Override
+	public String save( QuestionEntity question ) throws SQLException {
+
+		String sql = "INSERT INTO testy_question (id, orderNo, header, content, weight, teacherId) values (?, ?, ?, ?, ?, ?)";
+		QUESTION_LOGGER.info( sql );
+
+        if ( question.getId() == null ) {
+            question.setId( UUID.randomUUID().toString() );
         }
 
-        return question.getId();
-    }
+		if ( question.getTeacherId() == null ) {
 
-    @Override
-    public String update(QuestionEntity question) throws SQLException {
+			question.setTeacherId( "BOT" );
+		}
 
-        String sql = "UPDATE QUESTION SET (orderNo = ?), (header = ?), (content = ?), (weight = ?), (teacherId = ?), (active = ?)  WHERE (id = ?)";
-        QUESTION_LOGGER.info(sql);
-        int updateCount = jdbcTemplate.update(sql,
-                question.getOrderNo(), question.getHeader(), question.getContent(), question.getWeight(), question.getTeacherId(), question.getActive(), question.getId());
+		int questionInsertCount = jdbcTemplate.update( sql,
+				question.getId(), question.getOrderNo(), question.getHeader(), question.getContent(), question.getWeight(), question.getTeacherId() );
 
-        if (updateCount <= 0) {
-            throw new SQLException("question could not be updated.");
+        if ( questionInsertCount <= 0 ) {
+            throw new SQLException( "question could not be saved." );
         }
 
-        return question.getId();
-    }
+		return question.getId();
+	}
 
-    @Override
-    public String delete(String id) throws SQLException {
 
-        String sql = "DELETE testy_question WHERE id = ?";
-        QUESTION_LOGGER.info(sql);
+	@Override
+	public String save( QuestionEntity question, List< TaskEntity > tasks ) throws SQLException {
 
-        int deleteCount = jdbcTemplate.update(sql, id);
-        if (deleteCount <= 0)
-            throw new SQLException("Question could not be deleted");
+		String sql = "INSERT INTO testy_question (id, orderNo, header, content, weight, teacherId) values (?, ?, ?, ?, ?, ?)";
+		QUESTION_LOGGER.info( sql );
 
-        return id;
-    }
+        if ( question.getId() == null ) {
+            question.setId( UUID.randomUUID().toString() );
+        }
 
-    @Override
-    public List<QuestionEntity> select() throws SQLException {
-        String sql = "SELECT * FROM testy_question WHERE active = TRUE";
-        QUESTION_LOGGER.info(sql);
-        return jdbcTemplate.query(sql, rowMapper());
-    }
+        if ( question.getTeacherId() == null ) {
 
-    @Override
-    public Optional<QuestionEntity> select(String id) throws SQLException {
-        String sql = "SELECT * FROM testy_question WHERE id = ? AND active = TRUE";
-        QUESTION_LOGGER.info(sql);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper(), id));
-    }
+            question.setTeacherId( "BOT" );
+        }
 
-    private RowMapper<QuestionEntity> rowMapper() {
-        return (rs, rowNum) -> new QuestionEntity()
-                .withId(rs.getString("id"))
-                .withActive(rs.getBoolean("active"))
-                .withHeader(rs.getString("header"))
-                .withContent(rs.getString("content"))
-                .withOrderNo(rs.getInt("orderNo"))
-                .withWeight(rs.getDouble("weight"))
-                .withTeacherId(rs.getString("teacherId"));
-    }
+		int questionInsertCount = jdbcTemplate.update( sql,
+				question.getId(), question.getOrderNo(), question.getHeader(), question.getContent(), question.getWeight(), question.getTeacherId() );
+
+
+        if ( questionInsertCount <= 0 ) {
+            throw new SQLException( "question could not be added" );
+        }
+
+		for ( TaskEntity task : tasks ) {
+			String sqlChoice = "INSERT INTO task (id, value, orderNo, weight, type, questionId) VALUES (?, ?, ?, ?, ?, ?)";
+			QUESTION_LOGGER.info( sqlChoice );
+
+			int insertCount = jdbcTemplate.update( sqlChoice,
+					task.getId(), task.getValue(), task.getOrderNo(), task.getWeight(), task.getType(), task.getQuestionId() );
+            if ( insertCount <= 0 ) {
+                throw new SQLException( "choice could not be added to question with ID: " + question.getId() );
+            }
+		}
+
+		return question.getId();
+	}
+
+
+	@Override
+	public String update( QuestionEntity question ) throws SQLException {
+
+		String sql = "UPDATE QUESTION SET (orderNo = ?), (header = ?), (content = ?), (weight = ?), (teacherId = ?), (active = ?)  WHERE (id = ?)";
+		QUESTION_LOGGER.info( sql );
+
+        if ( question.getTeacherId() == null ) {
+
+            question.setTeacherId( "BOT" );
+        }
+
+		int updateCount = jdbcTemplate.update( sql,
+				question.getOrderNo(), question.getHeader(), question.getContent(), question.getWeight(), question.getTeacherId(), question.getActive(), question.getId() );
+
+		if ( updateCount <= 0 ) {
+			throw new SQLException( "question could not be updated." );
+		}
+
+		return question.getId();
+	}
+
+
+	@Override
+	public String delete( String id ) throws SQLException {
+
+		String sql = "DELETE testy_question WHERE id = ?";
+		QUESTION_LOGGER.info( sql );
+
+		int deleteCount = jdbcTemplate.update( sql, id );
+        if ( deleteCount <= 0 ) {
+            throw new SQLException( "Question could not be deleted" );
+        }
+
+		return id;
+	}
+
+
+	@Override
+	public List< QuestionEntity > select() throws SQLException {
+
+		String sql = "SELECT * FROM testy_question WHERE active = TRUE";
+		QUESTION_LOGGER.info( sql );
+		return jdbcTemplate.query( sql, rowMapper() );
+	}
+
+
+	@Override
+	public Optional< QuestionEntity > select( String id ) throws SQLException {
+
+		String sql = "SELECT * FROM testy_question WHERE id = ? AND active = TRUE";
+		QUESTION_LOGGER.info( sql );
+		return Optional.ofNullable( jdbcTemplate.queryForObject( sql, rowMapper(), id ) );
+	}
+
+
+	private RowMapper< QuestionEntity > rowMapper() {
+
+		return ( rs, rowNum ) -> new QuestionEntity()
+				.withId( rs.getString( "id" ) )
+				.withActive( rs.getBoolean( "active" ) )
+				.withHeader( rs.getString( "header" ) )
+				.withContent( rs.getString( "content" ) )
+				.withOrderNo( rs.getInt( "orderNo" ) )
+				.withWeight( rs.getDouble( "weight" ) )
+				.withTeacherId( rs.getString( "teacherId" ) );
+	}
+
 }
