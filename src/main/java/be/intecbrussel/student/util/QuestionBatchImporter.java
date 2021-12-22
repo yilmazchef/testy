@@ -1,12 +1,12 @@
-package be.intecbrussel.student.util;
+package it.vkod.testy.util;
 
-import be.intecbrussel.student.data.dto.QuestionDto;
-import be.intecbrussel.student.data.dto.TaskDto;
-import be.intecbrussel.student.mapper.IQuestionObjectMapper;
-import be.intecbrussel.student.mapper.ITaskObjectMapper;
-import be.intecbrussel.student.repository.ICategoryRepository;
-import be.intecbrussel.student.repository.IQuestionRepository;
-import be.intecbrussel.student.repository.ITaskRepository;
+import it.vkod.testy.data.dto.QuestionDto;
+import it.vkod.testy.data.dto.TaskDto;
+import it.vkod.testy.mapper.IQuestionObjectMapper;
+import it.vkod.testy.mapper.ITaskObjectMapper;
+import it.vkod.testy.repository.ICategoryRepository;
+import it.vkod.testy.repository.IQuestionRepository;
+import it.vkod.testy.repository.ITaskRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
-package be.intecbrussel.student.util;
+package it.vkod.testy.util;
 
-import be.intecbrussel.student.exception.CryptoException;
+import it.vkod.testy.exception.CryptoException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;

@@ -1,1 +1,0 @@
-web: java -jar target\testy-1.0-SNAPSHOT.jar $PORT

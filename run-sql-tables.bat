@@ -1,1 +1,0 @@
-.mysql\\bin\\mysql.exe -uroot -p testydb < src\\main\\resources\\schema.sql

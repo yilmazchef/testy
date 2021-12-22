@@ -1,4 +1,4 @@
-package be.intecbrussel.student.util;
+package it.vkod.testy.util;
 
 import com.vaadin.flow.i18n.I18NProvider;
 import org.slf4j.LoggerFactory;
