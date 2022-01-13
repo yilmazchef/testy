@@ -183,7 +183,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 	}
 
-
+	// TODO: not completed yet..
 	private ComponentEventListener< ClickEvent< Button > > updateQuestionEvent( CheckboxGroup< TaskDto > choicesCheckBoxGroup,
 	                                                                            CheckboxGroup< TaskDto > todosCheckBoxGroup ) {
 

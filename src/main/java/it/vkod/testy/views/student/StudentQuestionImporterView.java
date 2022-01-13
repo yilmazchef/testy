@@ -57,7 +57,7 @@ public class StudentQuestionImporterView extends AbstractView {
 
 
 	public StudentQuestionImporterView( final IExamService examService, final IQuestionService questionService, final IStudentService studentService,
-	final QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
+	                                    final QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
 
 		this.examService = examService;
 		this.questionService = questionService;
@@ -142,13 +142,12 @@ public class StudentQuestionImporterView extends AbstractView {
 					getNotifications().add( new DefaultNotification( "New Exam", examsGeneratedMessage ) );
 					UI.getCurrent().navigate( StudentNewExamView.class, new RouteParameters( "code", code ) );
 				}
-			} catch ( JsonMappingException e ) {
+
+			} catch ( JsonMappingException mappingException ) {
 
 
-			} catch ( JsonParseException e ) {
-				e.printStackTrace();
-			} catch ( IOException e ) {
-				e.printStackTrace();
+			} catch ( IOException ioException ) {
+				ioException.printStackTrace();
 			}
 
 
