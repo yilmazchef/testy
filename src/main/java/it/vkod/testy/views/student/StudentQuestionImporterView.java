@@ -10,7 +10,7 @@ import it.vkod.testy.security.AuthenticatedUser;
 import it.vkod.testy.service.IExamService;
 import it.vkod.testy.service.IQuestionService;
 import it.vkod.testy.service.IStudentService;
-import be.intecbrussel.student.util.QuestionBatchImporter;
+import it.vkod.testy.util.QuestionBatchImporter;
 import it.vkod.testy.views.AbstractView;
 import it.vkod.testy.views.DefaultNotification;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -56,8 +56,8 @@ public class StudentQuestionImporterView extends AbstractView {
 	private final AuthenticatedUser authenticatedUser;
 
 
-	public StudentQuestionImporterView( IExamService examService, IQuestionService questionService, IStudentService studentService,
-	                                    QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
+	public StudentQuestionImporterView( final IExamService examService, final IQuestionService questionService, final IStudentService studentService,
+	final QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
 
 		this.examService = examService;
 		this.questionService = questionService;

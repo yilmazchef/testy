@@ -38,9 +38,9 @@ spring:
         starttls.enable: true
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/testydb?createDatabaseIfNotExist=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/testy_dev?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false}
+    username: ${SPRING_DATASOURCE_USERNAME:testy}
+    password: ${SPRING_DATASOURCE_PASSWORD:testy}
     driver-class-name: com.mysql.cj.jdbc.Driver
   security:
     user:

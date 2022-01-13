@@ -6,7 +6,7 @@ import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.security.AuthenticatedUser;
 import it.vkod.testy.service.IQuestionService;
 import it.vkod.testy.service.ITeacherService;
-import be.intecbrussel.student.util.QuestionBatchImporter;
+import it.vkod.testy.util.QuestionBatchImporter;
 import it.vkod.testy.views.AbstractView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

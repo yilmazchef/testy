@@ -29,7 +29,10 @@ public class QuestionBatchImporter {
 
     private static final Logger BATCH_IMPORT_LOGGER = LoggerFactory.getLogger(QuestionBatchImporter.class);
 
-    public QuestionBatchImporter(IQuestionRepository questionRepository, ITaskRepository taskRepository, ICategoryRepository categoryRepository, IQuestionObjectMapper questionMapper, ITaskObjectMapper taskMapper) {
+    public QuestionBatchImporter(final IQuestionRepository questionRepository, final ITaskRepository taskRepository,
+            final ICategoryRepository categoryRepository, final IQuestionObjectMapper questionMapper,
+            final ITaskObjectMapper taskMapper) {
+                
         this.questionRepository = questionRepository;
         this.taskRepository = taskRepository;
         this.categoryRepository = categoryRepository;

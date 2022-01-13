@@ -8,7 +8,7 @@ import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.security.AuthenticatedUser;
 import it.vkod.testy.service.IQuestionService;
 import it.vkod.testy.service.ITeacherService;
-import be.intecbrussel.student.util.QuestionBatchImporter;
+import it.vkod.testy.util.QuestionBatchImporter;
 import it.vkod.testy.views.AbstractView;
 import it.vkod.testy.views.DefaultNotification;
 import it.vkod.testy.views.Priority;
@@ -150,6 +150,10 @@ public class TeacherQuestionEditorView extends AbstractView {
 			final var message = importedQuestions.size() + " question(s) with " + importedTasks.size()
 					+ " total tasks imported..";
 			getNotifications().add( new DefaultNotification( "Question Batch Import", message ) );
+
+
+			stepper.getFinish().setEnabled(false);
+
 		};
 	}
 

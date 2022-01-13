@@ -74,7 +74,12 @@ public class ExamService implements IExamService {
 
 		try {
 
+			EXAM_SERVICE_LOGGER.info("Exam build process is started with: " + examEntity);
+
 			eId.savedExamId = examRepository.save( examEntity );
+
+			EXAM_SERVICE_LOGGER.info("Exam build process is ended with new ID: " + eId.savedExamId);
+
 			return eId.savedExamId;
 
 		} catch ( SQLException sqlException ) {

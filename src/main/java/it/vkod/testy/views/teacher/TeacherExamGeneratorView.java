@@ -57,7 +57,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 	private final AuthenticatedUser authenticatedUser;
 
 
-	public TeacherExamGeneratorView( IQuestionService questionService, ITeacherService teacherService, IExamService examService,
+	public TeacherExamGeneratorView( final IQuestionService questionService, final ITeacherService teacherService, final IExamService examService,
 	                                 final AuthenticatedUser authenticatedUser ) {
 
 		this.questionService = questionService;
@@ -77,9 +77,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 		if ( oUser.isPresent() ) {
 			final var user = oUser.get();
 			final var oTeacher = teacherService.fetchTeacherById( user.getId() );
-			oTeacher.ifPresent( teacher -> {
-				initExamsLayout( teacher );
-			} );
+			oTeacher.ifPresent( this::initExamsLayout );
 		}
 	}
 
@@ -91,7 +89,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 					.stream()
 					.flatMap( questionDto -> questionDto.getTasks().stream() )
 					.map( taskDto -> newExam( examCode, taskDto ) )
-					.map( examService::create )
+					.map( examDto -> examService.create(examDto) )
 					.filter( savedId -> !savedId.equalsIgnoreCase( "-1" ) )
 					.count();
 
@@ -108,7 +106,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 				.withCode( examCode )
 				.withSession( "ANON" )
 				.withStartTime( Timestamp.valueOf( LocalDateTime.now() ) )
-				.withEndTime( Timestamp.valueOf( LocalDateTime.now() ) )
+				.withEndTime( Timestamp.valueOf( LocalDateTime.now().plusHours(2) ) )
 				.withStudent( new UserDto().withId( UUID.randomUUID().toString() ).withAnonymous( true ) )
 				.withTask( task )
 				.withScore( task.getWeight() );
@@ -154,7 +152,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 		final var generateExamButton = new Button(
 				"Generate an exam with selected questions",
-				generateExamEvent( examCodeField.getValue(), questionsListBox.getSelectedItems().stream().collect( Collectors.toUnmodifiableList() ) ) );
+				generateExamEvent( examCodeField.getValue().trim(), questionsListBox.getSelectedItems().stream().collect( Collectors.toUnmodifiableList() ) ) );
 
 		add( examCodeLabel, examCodeField, questionsListBox, generateExamButton );
 	}

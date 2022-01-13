@@ -1,12 +1,18 @@
 # noinspection SqlNoDataSourceInspectionForFile
 
-DROP DATABASE testydb;
+CREATE DATABASE IF NOT EXISTS testy_dev;
 
-CREATE DATABASE testydb;
-
-USE testydb;
+USE testy_dev;
 
 DROP TABLE IF EXISTS testy_solution;
+DROP TABLE IF EXISTS testy_exam;
+DROP TABLE IF EXISTS testy_task;
+DROP TABLE IF EXISTS testy_tag;
+DROP TABLE IF EXISTS testy_question;
+DROP TABLE IF EXISTS testy_category;
+DROP TABLE IF EXISTS testy_user;
+
+
 
 CREATE TABLE IF NOT EXISTS testy_solution
 (
@@ -20,7 +26,6 @@ CREATE TABLE IF NOT EXISTS testy_solution
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS testy_exam;
 
 CREATE TABLE IF NOT EXISTS testy_exam
 (
@@ -39,7 +44,6 @@ CREATE TABLE IF NOT EXISTS testy_exam
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS testy_task;
 
 CREATE TABLE IF NOT EXISTS testy_task
 (
@@ -53,7 +57,6 @@ CREATE TABLE IF NOT EXISTS testy_task
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS testy_question;
 
 CREATE TABLE IF NOT EXISTS testy_question
 (
@@ -67,7 +70,6 @@ CREATE TABLE IF NOT EXISTS testy_question
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS testy_category;
 
 CREATE TABLE IF NOT EXISTS testy_category
 (
@@ -78,7 +80,6 @@ CREATE TABLE IF NOT EXISTS testy_category
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS testy_tag;
 
 CREATE TABLE IF NOT EXISTS testy_tag
 (
@@ -90,7 +91,6 @@ CREATE TABLE IF NOT EXISTS testy_tag
     PRIMARY KEY (id)
 );
 
-DROP TABLE IF EXISTS testy_user;
 
 CREATE TABLE IF NOT EXISTS testy_user
 (
