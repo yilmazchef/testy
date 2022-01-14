@@ -254,7 +254,7 @@ public class ExamService implements IExamService {
 			return examRepository
 					.selectAllByCode( code )
 					.stream()
-					.map( examMapper::toDTO )
+					.map( examEntity -> examMapper.toDTO( examEntity ) )
 					.map( examDto -> {
 						try {
 							final var oTask = taskRepository.selectById( examDto.getTask().getId() );

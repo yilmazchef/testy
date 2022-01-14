@@ -61,7 +61,7 @@ public class ContinueOnAnotherDeviceView extends AbstractView {
 				}, 120, TimeUnit.SECONDS );
 				requestTimer.start();
 
-				final var qrCodeBytes = barcodeGenerator.toQRCode( MessageFormat.format( "{0}?sessionId={1}",
+				final var qrCodeBytes = this.barcodeGenerator.toQRCode( MessageFormat.format( "{0}?sessionId={1}",
 						absoluteUrl, getCurrentSession().getSession().getId() ), 350, 350 );
 				final var qrCodeStream = new StreamResource( "testy_qr.png", () -> new ByteArrayInputStream( qrCodeBytes ) );
 				final var qrCodeImage = new Image( qrCodeStream, "QR CODE" );

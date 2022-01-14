@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS testy_user
     email         varchar(100) NULL,
     phone         varchar(14)  NULL,
     password      varchar(255) NOT NULL,
-    course        varchar(255) NOT NULL,
+    course        varchar(255) NOT NULL DEFAULT 'ONGEDEFINEERD',
     activation    varchar(255) NOT NULL,
     active        BIT(1) DEFAULT 1,
     PRIMARY KEY (id)

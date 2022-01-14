@@ -2,12 +2,21 @@ package it.vkod.testy.views.teacher;
 
 
 import com.mlottmann.vstepper.Step;
-import com.vaadin.flow.component.Component;
+import com.mlottmann.vstepper.StepContent;
+import com.mlottmann.vstepper.stepEvent.AbortEvent;
+import com.mlottmann.vstepper.stepEvent.CompleteEvent;
+import com.mlottmann.vstepper.stepEvent.EnterEvent;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import it.vkod.testy.data.dto.ExamDto;
 import it.vkod.testy.data.dto.QuestionDto;
 import it.vkod.testy.data.dto.TaskDto;
 import it.vkod.testy.data.dto.UserDto;
 import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.security.AuthenticatedUser;
+import it.vkod.testy.service.IExamService;
 import it.vkod.testy.service.IQuestionService;
 import it.vkod.testy.service.ITeacherService;
 import it.vkod.testy.util.QuestionBatchImporter;
@@ -37,9 +46,13 @@ import com.vaadin.flow.server.VaadinSession;
 import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @PageTitle( TeacherQuestionEditorView.TITLE )
 @Route( value = TeacherQuestionEditorView.ROUTE )
@@ -54,31 +67,33 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 	private final IQuestionService questionService;
 	private final ITeacherService teacherService;
+	private final IExamService examService;
 	private final QuestionBatchImporter batchImporter;
-    private final AuthenticatedUser authenticatedUser;
+	private final AuthenticatedUser authenticatedUser;
 
 
-	public TeacherQuestionEditorView( IQuestionService questionService, ITeacherService teacherService,
-                                      QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
+	public TeacherQuestionEditorView( final IQuestionService questionService, final ITeacherService teacherService, IExamService examService,
+	                                  final QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser ) {
 
 		this.questionService = questionService;
 		this.teacherService = teacherService;
+		this.examService = examService;
 		this.batchImporter = batchImporter;
-        this.authenticatedUser = authenticatedUser;
+		this.authenticatedUser = authenticatedUser;
 
-        initParentComponentStyle();
+		initParentComponentStyle();
 
-        Optional< UserEntity > oUser = Optional.empty();
-        try {
-            oUser = this.authenticatedUser.get();
-        } catch ( SQLException e ) {
-            e.printStackTrace();
-        }
+		Optional< UserEntity > oUser = Optional.empty();
+		try {
+			oUser = this.authenticatedUser.get();
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
 
-        if ( oUser.isPresent() ) {
-            final var oTeacher = teacherService.fetchTeacherById( oUser.get().getId() );
-            oTeacher.ifPresent( this::initBatchImportLayout );
-        }
+		if ( oUser.isPresent() ) {
+			final var oTeacher = this.teacherService.fetchTeacherById( oUser.get().getId() );
+			oTeacher.ifPresent( this::initBatchImportLayout );
+		}
 
 	}
 
@@ -111,7 +126,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 					stepper.addStep( "Question", initQuestionTemplateLayout( question, question.getTasks() ) );
 				}
 
-				stepper.getFinish().addClickListener( importQuestionsEvent( beans ) );
+				stepper.getFinish().addClickListener( importQuestionsEvent( teacher, beans ) );
 
 				final var uploadMessage = beans.size() + " new questions with tasks from " + fileName;
 				getNotifications().add( new DefaultNotification( "FILE UPLOAD", uploadMessage ) );
@@ -138,30 +153,49 @@ public class TeacherQuestionEditorView extends AbstractView {
 	}
 
 
-	private ComponentEventListener< ClickEvent< Button > > importQuestionsEvent( List< QuestionDto > questions ) {
+	private ComponentEventListener< ClickEvent< Button > > importQuestionsEvent( final UserDto teacher, final List< QuestionDto > questions ) {
 
 		return onFinishClick -> {
+
 			final var importedQuestions = batchImporter.batchImportQuestions( questions.toArray( QuestionDto[]::new ) );
 			final var importedTasks = importedQuestions.stream().map( question -> batchImporter
 							.batchImportTasks( question.getId(), question.getTasks().toArray( TaskDto[]::new ) ) )
 					.collect( Collectors.toUnmodifiableSet() );
 
+			final var allTasks = importedTasks.stream().flatMap( List::stream ).collect( Collectors.toUnmodifiableSet() );
+
 			final var message = importedQuestions.size() + " question(s) with " + importedTasks.size()
 					+ " total tasks imported..";
-			getNotifications().add( new DefaultNotification( "Question Batch Import", message ) );
+			getNotifications().add( new DefaultNotification( "Questions imported!", message ) );
 
+			stepper.getFinish().setEnabled( false );
 
-			stepper.getFinish().setEnabled(false);
+			final String examCode = "EXAM-" + UUID.randomUUID();
 
-			stepper.addStep( generateExamStepper(importedTasks) );
+			for ( final TaskDto task : allTasks ) {
+				this.examService.create( newExam( examCode, task, teacher ) );
+			}
+
+			if ( !allTasks.isEmpty() ) {
+				getNotifications().add( new DefaultNotification( "Exam Generated!", message ) );
+			}
 
 		};
 	}
 
 
-	private Step generateExamStepper( final Set< List< TaskDto > > importedTasks ) {
+	private ExamDto newExam( final String examCode, final TaskDto task, UserDto teacher ) {
 
-		return null;
+		return new ExamDto()
+				.withCode( examCode )
+				.withSession( currentSession.getSession().getId() )
+				.withStartTime( Timestamp.valueOf( LocalDateTime.now() ) )
+				.withEndTime( Timestamp.valueOf( LocalDateTime.now() ) )
+				.withStudent( teacher )
+				.withTask( task )
+				.withOrganizer( teacher )
+				.withSubmitted( false )
+				.withScore( task.getWeight() );
 	}
 
 
@@ -182,15 +216,12 @@ public class TeacherQuestionEditorView extends AbstractView {
 		final var submitButton = new Button( "Update", updateQuestionEvent( choicesCheckBoxGroup, todosCheckBoxGroup ) );
 		submitButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );
 
-		final var singleImportButton = new Button( "Import", importQuestionsEvent( Collections.singletonList( question ) ) );
-		singleImportButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );
-
-		layout.add( submitButton, singleImportButton );
+		layout.add( submitButton );
 		return layout;
 
 	}
 
-	// TODO: not completed yet..
+
 	private ComponentEventListener< ClickEvent< Button > > updateQuestionEvent( CheckboxGroup< TaskDto > choicesCheckBoxGroup,
 	                                                                            CheckboxGroup< TaskDto > todosCheckBoxGroup ) {
 

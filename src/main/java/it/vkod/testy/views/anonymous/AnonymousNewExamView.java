@@ -49,17 +49,17 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
 	private final IExamService examService;
 
 
-	public AnonymousNewExamView( IExamService examService ) {
+	public AnonymousNewExamView( final IExamService examService ) {
 
 		this.examService = examService;
 
 		initParentComponentStyle();
 
-		examStepper.setSizeFull();
-		examStepper.getNext().setIcon( VaadinIcon.ARROW_RIGHT.create() );
-		examStepper.getNext().setVisible( false );
-		examStepper.getBack().setIcon( VaadinIcon.ARROW_LEFT.create() );
-		examStepper.getFinish().setIcon( VaadinIcon.CHECK.create() );
+		this.examStepper.setSizeFull();
+		this.examStepper.getNext().setIcon( VaadinIcon.ARROW_RIGHT.create() );
+		this.examStepper.getNext().setVisible( false );
+		this.examStepper.getBack().setIcon( VaadinIcon.ARROW_LEFT.create() );
+		this.examStepper.getFinish().setIcon( VaadinIcon.CHECK.create() );
 
 		final var examStarterLayout = new VerticalLayout();
 		examStarterLayout.setWidthFull();
@@ -69,14 +69,11 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
 		final var examCodeField = new TextField();
 		final var startExamButton = new Button( "Start Exam", onClick -> {
 			final var code = examCodeField.getValue();
-			final var patchResponses = examService.patchSession( code, currentSession.getSession().getId() );
 
-			if ( patchResponses != null && !patchResponses.isEmpty() ) {
-				final var examsResponse = examService.selectAllByCode( code );
-				if ( examsResponse != null && !examsResponse.isEmpty() ) {
-					examStepper.getNext().setVisible( true );
-					add( initSingleExamStepperLayout( code, examsResponse ) );
-				}
+			final var examsResponse = this.examService.selectAllByCode( code );
+			if ( examsResponse != null && !examsResponse.isEmpty() ) {
+				this.examStepper.getNext().setVisible( true );
+				add( initSingleExamStepperLayout( code, examsResponse ) );
 			}
 		} );
 		startExamButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );
