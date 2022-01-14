@@ -32,6 +32,9 @@ public class ExamDto extends ADto {
 
 	public void setOrganizerId( final String organizerId ) {
 
+		if ( this.getOrganizer() == null ) {
+			this.organizer = new UserDto();
+		}
 		this.organizer.setId( organizerId );
 	}
 
