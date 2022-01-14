@@ -1,6 +1,8 @@
 package it.vkod.testy.data.dto;
 
 
+import it.vkod.testy.data.entity.CourseEntity;
+
 public class UserDto extends AUserDto {
 
 	private String firstName;
@@ -8,6 +10,39 @@ public class UserDto extends AUserDto {
 	private Boolean anonymous;
 	private String email;
 	private String phone;
+	private CourseDto course;
+
+
+	public CourseDto getCourse() {
+
+		return course;
+	}
+
+
+	public void setCourse( final String course ) {
+
+		this.course = CourseDto.valueOf( course );
+	}
+
+
+	public UserDto withCourse( final String course ) {
+
+		this.setCourse( CourseDto.valueOf( course ) );
+		return this;
+	}
+
+
+	public void setCourse( final CourseDto course ) {
+
+		this.course = course;
+	}
+
+
+	public UserDto withCourse( final CourseDto course ) {
+
+		this.setCourse( course );
+		return this;
+	}
 
 
 	public String getEmail() {

@@ -1,6 +1,8 @@
 package it.vkod.testy.views.teacher;
 
 
+import com.mlottmann.vstepper.Step;
+import com.vaadin.flow.component.Component;
 import it.vkod.testy.data.dto.QuestionDto;
 import it.vkod.testy.data.dto.TaskDto;
 import it.vkod.testy.data.dto.UserDto;
@@ -35,10 +37,7 @@ import com.vaadin.flow.server.VaadinSession;
 import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -154,7 +153,15 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 			stepper.getFinish().setEnabled(false);
 
+			stepper.addStep( generateExamStepper(importedTasks) );
+
 		};
+	}
+
+
+	private Step generateExamStepper( final Set< List< TaskDto > > importedTasks ) {
+
+		return null;
 	}
 
 

@@ -8,6 +8,39 @@ public class UserEntity extends AUserEntity {
 	private Boolean anonymous;
 	private String email;
 	private String phone;
+	private String course;
+
+
+	public String getCourse() {
+
+		return course;
+	}
+
+
+	public void setCourse( final CourseEntity course ) {
+
+		this.course = course.name();
+	}
+
+
+	public UserEntity withCourse( final CourseEntity course ) {
+
+		this.setCourse( course );
+		return this;
+	}
+
+
+	public void setCourse( final String course ) {
+
+		this.course = course;
+	}
+
+
+	public UserEntity withCourse( final String course ) {
+
+		this.setCourse( course );
+		return this;
+	}
 
 
 	public String getEmail() {

@@ -56,6 +56,10 @@ public class UserObjectMapper implements IUserObjectMapper {
 			entity.setActivation( dto.getActivation() );
 		}
 
+		if ( dto.getCourse() != null ) {
+			entity.setCourse( dto.getCourse().name() );
+		}
+
 		return entity;
 	}
 
@@ -107,6 +111,10 @@ public class UserObjectMapper implements IUserObjectMapper {
 
 		if ( entity.getPhone() != null ) {
 			dto.setPhone( entity.getPhone() );
+		}
+
+		if ( entity.getCourse() != null ) {
+			dto.setCourse( entity.getCourse() );
 		}
 
 		return dto;

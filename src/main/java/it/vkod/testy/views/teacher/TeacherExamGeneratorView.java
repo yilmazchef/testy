@@ -38,6 +38,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -56,7 +57,6 @@ public class TeacherExamGeneratorView extends AbstractView {
 	private final IExamService examService;
 	private final AuthenticatedUser authenticatedUser;
 
-
 	public TeacherExamGeneratorView( final IQuestionService questionService, final ITeacherService teacherService, final IExamService examService,
 	                                 final AuthenticatedUser authenticatedUser ) {
 
@@ -69,27 +69,28 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 		Optional< UserEntity > oUser = Optional.empty();
 		try {
-			oUser = authenticatedUser.get();
+			oUser = this.authenticatedUser.get();
 		} catch ( SQLException e ) {
 			e.printStackTrace();
 		}
 
 		if ( oUser.isPresent() ) {
 			final var user = oUser.get();
-			final var oTeacher = teacherService.fetchTeacherById( user.getId() );
-			oTeacher.ifPresent( this::initExamsLayout );
+			final var oTeacher = this.teacherService.fetchTeacherById( user.getId() );
+			oTeacher.ifPresent( teacher -> initExamsLayout( teacher ) );
 		}
 	}
 
 
-	private ComponentEventListener< ClickEvent< Button > > generateExamEvent( final String examCode, final List< QuestionDto > questions ) {
+	private ComponentEventListener< ClickEvent< Button > > generateExamEvent( final String examCode, final Set< QuestionDto > questions ) {
 
 		return onFinishClick -> {
+
 			final var examsCount = questions
 					.stream()
 					.flatMap( questionDto -> questionDto.getTasks().stream() )
 					.map( taskDto -> newExam( examCode, taskDto ) )
-					.map( examDto -> examService.create(examDto) )
+					.map( examDto -> examService.create( examDto ) )
 					.filter( savedId -> !savedId.equalsIgnoreCase( "-1" ) )
 					.count();
 
@@ -106,7 +107,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 				.withCode( examCode )
 				.withSession( "ANON" )
 				.withStartTime( Timestamp.valueOf( LocalDateTime.now() ) )
-				.withEndTime( Timestamp.valueOf( LocalDateTime.now().plusHours(2) ) )
+				.withEndTime( Timestamp.valueOf( LocalDateTime.now().plusHours( 2 ) ) )
 				.withStudent( new UserDto().withId( UUID.randomUUID().toString() ).withAnonymous( true ) )
 				.withTask( task )
 				.withScore( task.getWeight() );
@@ -115,7 +116,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 	private void initExamsLayout( final UserDto teacher ) {
 
-		final var examResponse = examService.selectAllBySession();
+		final var examResponse = this.examService.selectAllBySession();
 
 		if ( examResponse != null && !examResponse.isEmpty() ) {
 
@@ -123,7 +124,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 			examResponse
 					.stream()
-					.collect( Collectors.groupingBy( ExamDto::getCode ) )
+					.collect( Collectors.groupingBy( examDto -> examDto.getCode() ) )
 					.forEach( ( examCode, examData ) ->
 							examsListBox.add( new Button( "Edit Exam", onClick -> initSingleExamStepperLayout( examCode, examData, teacher ) ) ) );
 
@@ -152,7 +153,7 @@ public class TeacherExamGeneratorView extends AbstractView {
 
 		final var generateExamButton = new Button(
 				"Generate an exam with selected questions",
-				generateExamEvent( examCodeField.getValue().trim(), questionsListBox.getSelectedItems().stream().collect( Collectors.toUnmodifiableList() ) ) );
+				generateExamEvent( examCodeField.getValue().trim(), questionsListBox.getSelectedItems()));
 
 		add( examCodeLabel, examCodeField, questionsListBox, generateExamButton );
 	}
@@ -200,10 +201,20 @@ public class TeacherExamGeneratorView extends AbstractView {
 		layout.setId( String.valueOf( ( int ) System.currentTimeMillis() ) );
 
 		layout.add( new H3( question.getHeader() ) );
-		question.getContent().stream().map( Paragraph::new ).forEach( layout::add );
+		question.getContent().stream().map( text -> new Paragraph( text ) ).forEach( layout::add );
 
-		final var choicesCheckBoxGroup = initTaskLayout( "Choices", question, tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.CHOICE ).collect( Collectors.toUnmodifiableList() ) );
-		final var todosCheckBoxGroup = initTaskLayout( "Task(s)", question, tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.TODO ).collect( Collectors.toUnmodifiableList() ) );
+		final var choicesCheckBoxGroup = initTaskLayout(
+				"Choices",
+				question,
+				tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.CHOICE ).collect( Collectors.toUnmodifiableList() )
+		);
+
+		final var todosCheckBoxGroup = initTaskLayout(
+				"Task(s)",
+				question,
+				tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.TODO ).collect( Collectors.toUnmodifiableList() )
+		);
+
 		layout.add( choicesCheckBoxGroup, todosCheckBoxGroup );
 
 		final var submitButton = new Button( "Submit", onClick -> {

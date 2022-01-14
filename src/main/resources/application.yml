@@ -1,5 +1,9 @@
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8443}
+  ssl:
+    key-store: classpath:testy.p12
+    key-store-password: P@ssw0rd
+    keyStoreType: PKCS12
 
 logging.level:
   org.atmosphere: warn
@@ -30,12 +34,12 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
+    username: ${SPRING_MAIL_PASSWORD:chefsandbox@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:1q2w3e4rP@ssw0rd}
     properties:
       mail:
         smtp.auth: true
-        starttls.enable: true
+        smtp.starttls.enable: true
 
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/testy_dev?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false}

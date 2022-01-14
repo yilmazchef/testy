@@ -1,0 +1,50 @@
+version: '3.3'
+
+services:
+
+  db:
+    image: mysql:latest
+    restart: unless-stopped
+    networks:
+      - checknet
+    ports:
+      - "3443:3306"
+    environment:
+      - MYSQL_DATABASE=testy_prod
+      - MYSQL_USER=testy
+      - MYSQL_PASSWORD=testy
+      - MYSQL_ROOT_PASSWORD=1a2z3e4a5z6e7a8z9e 
+      - TZ=Europe/Brussels
+    volumes:
+        - ./dump:/docker-entrypoint-initdb.d
+        - persistent:/var/lib/mysql
+
+  dbadmin:
+    image: adminer
+    restart: always
+    networks:
+      - checknet
+    ports:
+      - 9000:8080
+
+  app:
+    image: yilmazchef/testy:latest
+    restart: always
+    depends_on:
+      - db
+      - dbadmin
+    networks:
+      - checknet
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/testy_prod
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1a2z3e4a5z6e7a8z9e
+    ports:
+      - "443:8443"
+
+networks:
+  checknet:
+    attachable: true
+
+volumes:
+  persistent:
