@@ -1,9 +1,10 @@
 server:
-  port: ${PORT:8443}
-  ssl:
-    key-store: classpath:testy.p12
-    key-store-password: P@ssw0rd
-    keyStoreType: PKCS12
+  port: ${PORT:8888}
+  # port: ${PORT:8443}
+  # ssl:
+  #   key-store: classpath:testy.p12
+  #   key-store-password: P@ssw0rd
+  #   keyStoreType: PKCS12
 
 logging.level:
   org.atmosphere: warn

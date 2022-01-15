@@ -8,6 +8,7 @@ import static java.lang.Double.doubleToLongBits;
 import static java.lang.Double.longBitsToDouble;
 
 public final class AtomicDouble extends Number {
+
     private static final long serialVersionUID = 12327722191124184L;
 
     private final AtomicLong bits;
@@ -27,7 +28,7 @@ public final class AtomicDouble extends Number {
      * @param expect the expected value
      * @param update the new value
      * @return {@code true} if successful. False return indicates that
-     * the actual value was not equal to the expected value.
+     *         the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(double expect, double update) {
         return bits.compareAndSet(toLong(expect), toLong(update));
@@ -60,7 +61,8 @@ public final class AtomicDouble extends Number {
      * Atomically sets the value to the given updated value
      * if the current value {@code ==} the expected value.
      *
-     * <p><a href="package-summary.html#weakCompareAndSet">May fail
+     * <p>
+     * <a href="package-summary.html#weakCompareAndSet">May fail
      * spuriously and does not provide ordering guarantees</a>, so is
      * only rarely an appropriate alternative to {@code compareAndSet}.
      *
@@ -77,7 +79,7 @@ public final class AtomicDouble extends Number {
      * applying the given function to the current and given values,
      * returning the updated value. The function should be
      * side-effect-free, since it may be re-applied when attempted
-     * updates fail due to contention among threads.  The function
+     * updates fail due to contention among threads. The function
      * is applied with the current value as its first argument,
      * and the given update as the second argument.
      *
@@ -119,7 +121,7 @@ public final class AtomicDouble extends Number {
      * applying the given function to the current and given values,
      * returning the previous value. The function should be
      * side-effect-free, since it may be re-applied when attempted
-     * updates fail due to contention among threads.  The function
+     * updates fail due to contention among threads. The function
      * is applied with the current value as its first argument,
      * and the given update as the second argument.
      *
@@ -187,7 +189,6 @@ public final class AtomicDouble extends Number {
         } while (!compareAndSet(prev, next));
         return prev;
     }
-
 
     /**
      * Eventually sets to the given value.
