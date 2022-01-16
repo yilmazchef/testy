@@ -1,6 +1,7 @@
 package it.vkod.testy.service;
 
 
+import it.vkod.testy.data.dto.CourseDto;
 import it.vkod.testy.data.dto.UserDto;
 import it.vkod.testy.data.index.UserFilter;
 
@@ -34,6 +35,8 @@ public interface IStudentService {
 	Optional< UserDto > fetchStudentById( final String studentId );
 
 	Optional< UserDto > fetchStudentByUserName( final String username );
+
+	List< UserDto > fetchStudentByCourse( final CourseDto course );
 
 	Optional< UserDto > fetchStudentByLoginDetails( final String username, final String password );
 

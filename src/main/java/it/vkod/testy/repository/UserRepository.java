@@ -1,6 +1,7 @@
 package it.vkod.testy.repository;
 
 
+import it.vkod.testy.data.dto.CourseDto;
 import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.data.index.UserFilter;
 import org.slf4j.Logger;
@@ -298,6 +299,14 @@ public class UserRepository implements IUserRepository {
 	private RowMapper< UserEntity > rowMapper() {
 
 		return new BeanPropertyRowMapper<>( UserEntity.class );
+	}
+
+
+	@Override
+	public List<UserEntity> selectByCourse(CourseDto course) throws SQLException {
+		final var sql = "SELECT * FROM testy_user WHERE active = TRUE AND course=?";
+		log.info( sql );
+		return jdbc.queryForList( sql, UserEntity.class, course.name() );
 	}
 
 }

@@ -1,6 +1,7 @@
 package it.vkod.testy.repository;
 
 
+import it.vkod.testy.data.dto.CourseDto;
 import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.data.index.UserFilter;
 
@@ -37,6 +38,8 @@ public interface IUserRepository {
 	Optional< UserEntity > selectByUserName( String username ) throws SQLException;
 
 	Optional< UserEntity > selectByEmail( String username ) throws SQLException;
+
+	List< UserEntity > selectByCourse( final CourseDto course ) throws SQLException;
 
 	Optional< UserEntity > selectByPhone( String phone ) throws SQLException;
 

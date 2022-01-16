@@ -1,6 +1,7 @@
 package it.vkod.testy.service;
 
 
+import it.vkod.testy.data.dto.CourseDto;
 import it.vkod.testy.data.dto.UserDto;
 import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.data.index.UserFilter;
@@ -244,6 +245,23 @@ public class StudentService implements IStudentService {
 		}
 
 		return sequence.students.stream().map( studentMapper::toDTO ).collect( Collectors.toUnmodifiableList() );
+	}
+
+
+	@Override
+	public List<UserDto> fetchStudentByCourse(CourseDto course) {
+		final var sequence = new Object() {
+			List< UserEntity > students = Collections.emptyList();
+		};
+
+		try {
+			sequence.students = studentRepository.selectByCourse( course );
+		} catch ( SQLException sqlEx ) {
+			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
+		}
+
+		return sequence.students.stream().map( studentMapper::toDTO ).collect( Collectors.toUnmodifiableList() );
+		
 	}
 
 }

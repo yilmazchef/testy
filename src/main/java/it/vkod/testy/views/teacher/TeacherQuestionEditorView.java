@@ -29,6 +29,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -37,6 +38,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 
+import it.vkod.testy.data.dto.CourseDto;
 import it.vkod.testy.data.dto.ExamDto;
 import it.vkod.testy.data.dto.QuestionDto;
 import it.vkod.testy.data.dto.TaskDto;
@@ -45,6 +47,7 @@ import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.security.AuthenticatedUser;
 import it.vkod.testy.service.IExamService;
 import it.vkod.testy.service.IQuestionService;
+import it.vkod.testy.service.IStudentService;
 import it.vkod.testy.service.ITeacherService;
 import it.vkod.testy.util.QuestionBatchImporter;
 import it.vkod.testy.views.AbstractView;
@@ -64,28 +67,26 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 	private final IQuestionService questionService;
 	private final ITeacherService teacherService;
+	private final IStudentService studentService;
 	private final IExamService examService;
 	private final QuestionBatchImporter batchImporter;
 	private final AuthenticatedUser authenticatedUser;
 
-	private static final Set<UUID> examIDs = new LinkedHashSet<>();
-	private final NumberField noOfExamsField = new NumberField("No of exams to generate");
+	private final Select<CourseDto> coursesSelect;
 
 	public TeacherQuestionEditorView(final IQuestionService questionService, final ITeacherService teacherService,
-			IExamService examService,
+			final IStudentService studentService, final IExamService examService,
 			final QuestionBatchImporter batchImporter, final AuthenticatedUser authenticatedUser) {
 
 		this.questionService = questionService;
 		this.teacherService = teacherService;
+		this.studentService = studentService;
 		this.examService = examService;
 		this.batchImporter = batchImporter;
 		this.authenticatedUser = authenticatedUser;
 
-		this.noOfExamsField.setHasControls(true);
-		this.noOfExamsField.setMin(1);
-		this.noOfExamsField.setValue(1.00);
-		this.noOfExamsField.setStep(1.00);
-		add(noOfExamsField);
+		this.coursesSelect = new Select<>(CourseDto.values());
+		add(this.coursesSelect);
 
 		initParentComponentStyle();
 
@@ -98,12 +99,27 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 		if (oUser.isPresent()) {
 			final var oTeacher = this.teacherService.fetchTeacherById(oUser.get().getId());
-			oTeacher.ifPresent(this::initBatchImportLayout);
+
+			this.coursesSelect.addValueChangeListener(onSelection -> {
+				if (oTeacher.isPresent() &&
+						onSelection.getValue() != null && onSelection.getValue() != onSelection.getOldValue()) {
+					final var students = this.studentService.fetchStudentByCourse(onSelection.getValue());
+
+					if (students.isEmpty()) {
+						getNotifications()
+								.add(new DefaultNotification("ERROR: NO STUDENTS FOUND",
+										"There are no students for this course. Therefore you cannot create any exam.",
+										Priority.ERROR));
+					} else {
+						initBatchImportLayout(oTeacher.get(), students);
+					}
+				}
+			});
 		}
 
 	}
 
-	private void initBatchImportLayout(UserDto teacher) {
+	private void initBatchImportLayout(UserDto teacher, List<UserDto> students) {
 
 		final var batchImportLayout = new VerticalLayout();
 		batchImportLayout.setPadding(false);
@@ -131,7 +147,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 					stepper.addStep("Question", initQuestionTemplateLayout(question, question.getTasks()));
 				}
 
-				stepper.getFinish().addClickListener(importQuestionsEvent(teacher, beans));
+				stepper.getFinish().addClickListener(importQuestionsEvent(teacher, students, beans));
 
 				final var uploadMessage = beans.size() + " new questions with tasks from " + fileName;
 				getNotifications().add(new DefaultNotification("FILE UPLOAD", uploadMessage));
@@ -158,6 +174,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 	}
 
 	private ComponentEventListener<ClickEvent<Button>> importQuestionsEvent(final UserDto teacher,
+			final List<UserDto> students,
 			final List<QuestionDto> questions) {
 
 		return onFinishClick -> {
@@ -175,30 +192,32 @@ public class TeacherQuestionEditorView extends AbstractView {
 
 			stepper.getFinish().setEnabled(false);
 
-			for (int index = 0; index < noOfExamsField.getValue(); index++) {
+			// TODO: get all students (users) registered to this course and for each student
+			// generate a new exam STILL UNDER DEVELOPMENT..
+
+			for (UserDto student : students) {
 				final String examCode = "EXAM-" + UUID.randomUUID();
 
 				for (final TaskDto task : allTasks) {
-					this.examService.create(newExam(examCode, task, teacher));
-				}
-			}
+					this.examService.create(newExam(examCode, task, teacher, student));
 
-			if (!allTasks.isEmpty()) {
-				getNotifications()
-						.add(new DefaultNotification(noOfExamsField.getValue() + "Exams Generated!", message));
+					getNotifications().add(new DefaultNotification(
+							"An exam are generated for " + student.getFirstName() + " " + student.getLastName(),
+							message));
+				}
 			}
 
 		};
 	}
 
-	private ExamDto newExam(final String examCode, final TaskDto task, UserDto teacher) {
+	private ExamDto newExam(final String examCode, final TaskDto task, final UserDto teacher, final UserDto student) {
 
 		return new ExamDto()
 				.withCode(examCode)
 				.withSession(currentSession.getSession().getId())
 				.withStartTime(Timestamp.valueOf(LocalDateTime.now()))
 				.withEndTime(Timestamp.valueOf(LocalDateTime.now()))
-				.withStudent(teacher)
+				.withStudent(student)
 				.withTask(task)
 				.withOrganizer(teacher)
 				.withSubmitted(false)
