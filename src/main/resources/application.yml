@@ -16,21 +16,6 @@ vaadin.pnpm.enable: false
 spring:
   profiles:
     active: "production"
-  jpa:
-    defer-datasource-initialization: true
-    hibernate:
-      ddl-auto: create
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    properties:
-      hibernate:
-        search:
-          backend:
-            directory:
-              type: local-heap
-  data:
-    jpa:
-      repositories:
-        enabled: true
 
   mail:
     host: smtp.gmail.com
