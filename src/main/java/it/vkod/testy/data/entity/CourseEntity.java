@@ -1,6 +1,5 @@
 package it.vkod.testy.data.entity;
 
-
 public enum CourseEntity {
 
 	BO_JAVA_14_OKT,

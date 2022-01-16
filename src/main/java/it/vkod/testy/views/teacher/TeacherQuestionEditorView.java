@@ -73,6 +73,7 @@ public class TeacherQuestionEditorView extends AbstractView {
 	private final AuthenticatedUser authenticatedUser;
 
 	private final Select<CourseDto> coursesSelect;
+	private final Button selectButton;
 
 	public TeacherQuestionEditorView(final IQuestionService questionService, final ITeacherService teacherService,
 			final IStudentService studentService, final IExamService examService,
@@ -86,7 +87,8 @@ public class TeacherQuestionEditorView extends AbstractView {
 		this.authenticatedUser = authenticatedUser;
 
 		this.coursesSelect = new Select<>(CourseDto.values());
-		add(this.coursesSelect);
+		this.coursesSelect.setItemLabelGenerator(Enum::name);
+		this.selectButton = new Button("Select & Continue");
 
 		initParentComponentStyle();
 
@@ -98,12 +100,15 @@ public class TeacherQuestionEditorView extends AbstractView {
 		}
 
 		if (oUser.isPresent()) {
+
+			add(this.coursesSelect, this.selectButton);
+
 			final var oTeacher = this.teacherService.fetchTeacherById(oUser.get().getId());
 
-			this.coursesSelect.addValueChangeListener(onSelection -> {
-				if (oTeacher.isPresent() &&
-						onSelection.getValue() != null && onSelection.getValue() != onSelection.getOldValue()) {
-					final var students = this.studentService.fetchStudentByCourse(onSelection.getValue());
+			if (oTeacher.isPresent()) {
+				this.selectButton.addClickListener(onClick -> {
+
+					final var students = this.studentService.fetchStudentByCourse(this.coursesSelect.getValue());
 
 					if (students.isEmpty()) {
 						getNotifications()
@@ -113,8 +118,9 @@ public class TeacherQuestionEditorView extends AbstractView {
 					} else {
 						initBatchImportLayout(oTeacher.get(), students);
 					}
-				}
-			});
+				});
+			}
+
 		}
 
 	}

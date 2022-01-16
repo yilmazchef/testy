@@ -20,6 +20,7 @@ public class UserFullRowMapper implements RowMapper< UserEntity > {
 		singleResult.setLastName( rs.getString( "lastName" ) );
 		singleResult.setActivation( rs.getString( "activation" ) );
 		singleResult.setUsername( rs.getString( "username" ) );
+		singleResult.setCourse( rs.getString( "course" ) );
 		singleResult.setActive( rs.getBoolean( "active" ) );
 		singleResult.setAuthenticated( rs.getBoolean( "authenticated" ) );
 		singleResult.setEmail( rs.getString( "email" ) );

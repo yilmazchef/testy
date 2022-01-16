@@ -1,5 +1,6 @@
 package it.vkod.testy.data.entity;
 
+import java.util.Objects;
 
 public class UserEntity extends AUserEntity {
 
@@ -199,5 +200,41 @@ public class UserEntity extends AUserEntity {
 
 		return super.getUsername();
 	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(email, firstName, lastName);
+		return result;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof UserEntity)) {
+			return false;
+		}
+		UserEntity other = (UserEntity) obj;
+		return Objects.equals(email, other.email) && Objects.equals(firstName, other.firstName)
+				&& Objects.equals(lastName, other.lastName);
+	}
+
+	
 
 }

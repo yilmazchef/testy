@@ -255,7 +255,7 @@ public class StudentService implements IStudentService {
 		};
 
 		try {
-			sequence.students = studentRepository.selectByCourse( course );
+			sequence.students = studentRepository.selectByCourse( course.name() );
 		} catch ( SQLException sqlEx ) {
 			log.error( Arrays.toString( sqlEx.getStackTrace() ) );
 		}

@@ -1,7 +1,7 @@
 package it.vkod.testy.repository;
 
-
 import it.vkod.testy.data.dto.CourseDto;
+import it.vkod.testy.data.entity.CourseEntity;
 import it.vkod.testy.data.entity.UserEntity;
 import it.vkod.testy.data.index.UserFilter;
 import org.slf4j.Logger;
@@ -18,47 +18,43 @@ import java.util.*;
 @Repository
 public class UserRepository implements IUserRepository {
 
-	private static final Logger log = LoggerFactory.getLogger( UserRepository.class );
+	private static final Logger log = LoggerFactory.getLogger(UserRepository.class);
 
 	private final JdbcTemplate jdbc;
 
-
 	@Autowired
-	public UserRepository( JdbcTemplate jdbc ) {
+	public UserRepository(JdbcTemplate jdbc) {
 
 		this.jdbc = jdbc;
 	}
-
 
 	@Override
 	public Integer count() throws SQLException {
 
 		final var sql = "SELECT COUNT(*) FROM testy_user WHERE active = true";
-		log.info( sql );
+		log.info(sql);
 
-		Integer count = jdbc.queryForObject( sql, Integer.class );
+		Integer count = jdbc.queryForObject(sql, Integer.class);
 		return count != null ? count : 0;
 
 	}
 
-
 	@Override
-	public Integer countByFullName( final String firstName, final String lastName ) throws SQLException {
+	public Integer countByFullName(final String firstName, final String lastName) throws SQLException {
 
 		final var sql = "SELECT COUNT(*) FROM testy_user WHERE active = true AND firstName LIKE ? AND lastName LIKE ?";
-		log.info( sql );
+		log.info(sql);
 
-		Integer count = jdbc.queryForObject( sql, Integer.class, firstName, lastName );
+		Integer count = jdbc.queryForObject(sql, Integer.class, firstName, lastName);
 		return count != null ? count : 0;
 
 	}
 
-
 	@Override
-	public String save( UserEntity user ) throws SQLException {
+	public String save(UserEntity user) throws SQLException {
 
-		if ( user.getId() == null ) {
-			user.setId( UUID.randomUUID().toString() );
+		if (user.getId() == null) {
+			user.setId(UUID.randomUUID().toString());
 		}
 
 		final var sql = "INSERT INTO " +
@@ -66,247 +62,235 @@ public class UserRepository implements IUserRepository {
 				"(id, firstName, lastName, authenticated, roles, username, email, phone, password, activation)" +
 				" values " +
 				"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		log.info( sql );
+		log.info(sql);
 
-		int insertCount = jdbc.update( sql,
+		int insertCount = jdbc.update(sql,
 				user.getId(), user.getFirstName(), user.getLastName(),
 				user.getAuthenticated() != null && user.getAuthenticated(), user.getRoles(),
 				user.getUsername(), user.getEmail(), user.getPhone(),
-				user.getPassword(), user.getActivation() );
+				user.getPassword(), user.getActivation());
 
-		if ( insertCount <= 0 ) {
-			throw new SQLException( "user could not be saved" );
+		if (insertCount <= 0) {
+			throw new SQLException("user could not be saved");
 		}
 
 		return user.getId();
 	}
 
-
 	@Override
-	public String update( UserEntity user ) throws SQLException {
+	public String update(UserEntity user) throws SQLException {
 
 		final var sql = "update testy_user set " +
 				"firstName = ?, lastName = ?, authenticated = ?, roles = ?, " +
 				"username = ?, email = ?, phone = ?, " +
 				"password = ?, activation = ?, active = ? " +
 				"where id = ? AND active = true";
-		log.info( sql );
+		log.info(sql);
 
-		int updateCount = jdbc.update( sql,
+		int updateCount = jdbc.update(sql,
 				user.getFirstName(), user.getLastName(),
 				user.getAuthenticated(), user.getRoles(), user.getUsername(), user.getEmail(), user.getPhone(),
-				user.getPassword(), user.getActivation(), !user.getActive(), user.getId() );
+				user.getPassword(), user.getActivation(), !user.getActive(), user.getId());
 
-		if ( updateCount <= 0 ) {
-			throw new SQLException( "user could not be updated" );
+		if (updateCount <= 0) {
+			throw new SQLException("user could not be updated");
 		}
 
 		return user.getId();
 	}
 
-
 	@Override
-	public String patchAddRole( String userId, String newRole ) throws SQLException {
+	public String patchAddRole(String userId, String newRole) throws SQLException {
 
-		final var oUser = selectById( userId );
+		final var oUser = selectById(userId);
 
-		if ( oUser.isEmpty() ) {
-			throw new SQLException( "User NOT found!" );
+		if (oUser.isEmpty()) {
+			throw new SQLException("User NOT found!");
 		}
 
 		final var sql = "update testy_user set roles = ? where id = ? AND active = TRUE";
-		log.info( sql );
+		log.info(sql);
 
-		final var roleSet = new HashSet<>( Arrays.asList( oUser.get().getRoles().split( "," ) ) );
-		roleSet.add( newRole );
+		final var roleSet = new HashSet<>(Arrays.asList(oUser.get().getRoles().split(",")));
+		roleSet.add(newRole);
 
-		final var updateCount = jdbc.update( sql, String.join( ",", roleSet ), userId );
+		final var updateCount = jdbc.update(sql, String.join(",", roleSet), userId);
 
-		if ( updateCount <= 0 ) {
-			throw new SQLException( "user could not be updated" );
+		if (updateCount <= 0) {
+			throw new SQLException("user could not be updated");
 		}
 
 		return userId;
 	}
 
-
 	@Override
-	public String patchRemoveRole( String userId, String newRole ) throws SQLException {
+	public String patchRemoveRole(String userId, String newRole) throws SQLException {
 
-		final var oUser = selectById( userId );
+		final var oUser = selectById(userId);
 
-		if ( oUser.isEmpty() ) {
-			throw new SQLException( "User NOT found!" );
+		if (oUser.isEmpty()) {
+			throw new SQLException("User NOT found!");
 		}
 
 		final var sql = "update testy_user set roles = ? where id = ? AND active = TRUE";
-		log.info( sql );
+		log.info(sql);
 
-		final var roleSet = new HashSet<>( Arrays.asList( oUser.get().getRoles().split( "," ) ) );
-		roleSet.remove( newRole );
+		final var roleSet = new HashSet<>(Arrays.asList(oUser.get().getRoles().split(",")));
+		roleSet.remove(newRole);
 
-		final var updateCount = jdbc.update( sql, String.join( ",", roleSet ), userId );
+		final var updateCount = jdbc.update(sql, String.join(",", roleSet), userId);
 
-		if ( updateCount <= 0 ) {
-			throw new SQLException( "user could not be updated" );
+		if (updateCount <= 0) {
+			throw new SQLException("user could not be updated");
 		}
 
 		return userId;
 	}
 
-
 	@Override
-	public String delete( String id ) throws SQLException {
+	public String delete(String id) throws SQLException {
 
 		final var sql = "delete from testy_user where id = ?";
-		log.info( sql );
-		final var deleteCount = jdbc.update( sql, id );
+		log.info(sql);
+		final var deleteCount = jdbc.update(sql, id);
 
-		if ( deleteCount <= 0 ) {
-			throw new SQLException( "user could not be deleted" );
+		if (deleteCount <= 0) {
+			throw new SQLException("user could not be deleted");
 		}
 
 		return id;
 	}
 
-
 	@Override
-	public List< UserEntity > selectAll() throws SQLException {
+	public List<UserEntity> selectAll() throws SQLException {
 
 		final var sql = "SELECT * FROM testy_user WHERE active = TRUE";
-		log.info( sql );
-		return jdbc.queryForList( sql, UserEntity.class );
+		log.info(sql);
+		return jdbc.queryForList(sql, UserEntity.class);
 	}
 
-
 	@Override
-	public List< UserEntity > filter( final UserFilter user ) throws SQLException {
+	public List<UserEntity> filter(final UserFilter user) throws SQLException {
 
 		final var sql = "SELECT * FROM testy_user WHERE active = TRUE AND (firstName LIKE ? OR lastName LIKE ?)";
-		log.info( sql );
-		return jdbc.queryForList( sql, UserEntity.class, user.getFirstName(), user.getLastName() );
+		log.info(sql);
+		return jdbc.queryForList(sql, UserEntity.class, user.getFirstName(), user.getLastName());
 	}
 
-
 	@Override
-	public List< UserEntity > filter( final String keyword ) throws SQLException {
+	public List<UserEntity> filter(final String keyword) throws SQLException {
 
 		final var sql = "SELECT * FROM testy_user WHERE active = TRUE" +
 				" AND (firstName LIKE ? OR lastName LIKE ?" +
 				" OR email LIKE ? OR phone LIKE ? )";
-		log.info( sql );
-		return jdbc.queryForList( sql, UserEntity.class, keyword, keyword, keyword, keyword );
+		log.info(sql);
+		return jdbc.queryForList(sql, UserEntity.class, keyword, keyword, keyword, keyword);
 	}
 
-
 	@Override
-	public Optional< UserEntity > selectForLogin( String username, String password ) throws SQLException {
+	public Optional<UserEntity> selectForLogin(String username, String password) throws SQLException {
 
 		String sql = "SELECT * FROM testy_user" +
 				" WHERE" +
 				" ( (username = ? AND password = ?) OR (email = ? AND password = ?) OR (phone = ? AND password = ?) )" +
 				" AND active = TRUE AND authenticated = TRUE";
-		log.info( sql );
-		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), username, password ) );
+		log.info(sql);
+		return Optional.ofNullable(jdbc.queryForObject(sql, rowMapper(), username, password));
 	}
 
-
 	@Override
-	public Optional< UserEntity > selectByUniqueFields( String key ) throws SQLException {
+	public Optional<UserEntity> selectByUniqueFields(String key) throws SQLException {
 
-		if(key.contains( "@" )){
-			return selectByEmail( key );
-		} else if (key.matches( "(0/91)?[7-9][0-9]{9}" )){
-			return selectByPhone( key );
+		if (key.contains("@")) {
+			return selectByEmail(key);
+		} else if (key.matches("(0/91)?[7-9][0-9]{9}")) {
+			return selectByPhone(key);
 		} else {
-			return selectByUserName( key );
+			return selectByUserName(key);
 		}
 	}
 
-
 	@Override
-	public Optional< UserEntity > selectByUserName( String username ) throws SQLException {
+	public Optional<UserEntity> selectByUserName(String username) throws SQLException {
 
-		if ( !existsByUserName( username ) ) {
+		if (!existsByUserName(username)) {
 			return Optional.empty();
 		}
 
 		String sql = "SELECT * FROM testy_user WHERE username = ? AND active = TRUE AND authenticated = TRUE";
-		log.info( sql );
-		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), username.toLowerCase() ) );
+		log.info(sql);
+		return Optional.ofNullable(jdbc.queryForObject(sql, rowMapper(), username.toLowerCase()));
 	}
 
-
 	@Override
-	public Optional< UserEntity > selectByEmail( String email ) throws SQLException {
+	public Optional<UserEntity> selectByEmail(String email) throws SQLException {
 
-		if ( !existsByUserName( email ) ) {
+		if (!existsByUserName(email)) {
 			return Optional.empty();
 		}
 
 		String sql = "SELECT * FROM testy_user WHERE email = ? AND active = TRUE AND authenticated = TRUE";
-		log.info( sql );
-		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), email ) );
+		log.info(sql);
+		return Optional.ofNullable(jdbc.queryForObject(sql, rowMapper(), email));
 	}
 
-
 	@Override
-	public Optional< UserEntity > selectByPhone( String phone ) throws SQLException {
+	public Optional<UserEntity> selectByPhone(String phone) throws SQLException {
 
-		if ( !existsByUserName( phone ) ) {
+		if (!existsByUserName(phone)) {
 			return Optional.empty();
 		}
 
 		String sql = "SELECT * FROM testy_user WHERE phone = ? AND active = TRUE AND authenticated = TRUE";
-		log.info( sql );
-		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), phone ) );
+		log.info(sql);
+		return Optional.ofNullable(jdbc.queryForObject(sql, rowMapper(), phone));
 	}
 
-
 	@Override
-	public Optional< UserEntity > selectById( String id ) throws SQLException {
+	public Optional<UserEntity> selectById(String id) throws SQLException {
 
-		if ( !existsByUserId( id ) ) {
+		if (!existsByUserId(id)) {
 			return Optional.empty();
 		}
 
 		final var sql = "SELECT * FROM testy_user WHERE id = ? AND active = TRUE";
-		log.info( sql );
-		return Optional.ofNullable( jdbc.queryForObject( sql, rowMapper(), id ) );
+		log.info(sql);
+		return Optional.ofNullable(jdbc.queryForObject(sql, rowMapper(), id));
 	}
 
-
 	@Override
-	public boolean existsByUserId( final String userId ) {
+	public boolean existsByUserId(final String userId) {
 
 		final var sql = "SELECT COUNT(*) FROM testy_user WHERE id = ? AND active = TRUE";
-		log.info( sql );
-		Integer count = jdbc.queryForObject( sql, Integer.class, userId );
+		log.info(sql);
+		Integer count = jdbc.queryForObject(sql, Integer.class, userId);
 		return count != null && count > 0;
 	}
 
-
 	@Override
-	public boolean existsByUserName( String username ) {
+	public boolean existsByUserName(String username) {
 
 		final var sql = "SELECT COUNT(*) FROM testy_user WHERE username = ? AND active = TRUE";
-		log.info( sql );
-		Integer count = jdbc.queryForObject( sql, Integer.class, username );
+		log.info(sql);
+		Integer count = jdbc.queryForObject(sql, Integer.class, username);
 		return count != null && count > 0;
 	}
 
+	private RowMapper<UserEntity> rowMapper() {
 
-	private RowMapper< UserEntity > rowMapper() {
-
-		return new BeanPropertyRowMapper<>( UserEntity.class );
+		return new BeanPropertyRowMapper<>(UserEntity.class);
 	}
 
-
 	@Override
-	public List<UserEntity> selectByCourse(CourseDto course) throws SQLException {
-		final var sql = "SELECT * FROM testy_user WHERE active = TRUE AND course=?";
-		log.info( sql );
-		return jdbc.queryForList( sql, UserEntity.class, course.name() );
+	public List<UserEntity> selectByCourse(final String course) throws SQLException {
+
+		if (Arrays.stream(CourseEntity.values()).noneMatch(c -> c.name().equalsIgnoreCase(course))) {
+			throw new SQLException("Course not found!");
+		}
+
+		String sql = "SELECT * FROM testy_user WHERE course = ? AND active = TRUE";
+		log.info(sql);
+		return jdbc.query(sql, rowMapper(), course);
 	}
 
 }

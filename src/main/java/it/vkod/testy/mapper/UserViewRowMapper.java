@@ -20,6 +20,7 @@ public class UserViewRowMapper implements RowMapper< UserEntity > {
 		singleResult.setLastName( rs.getString( "lastname" ) );
 		singleResult.setAuthenticated( rs.getBoolean( "authenticated" ) );
 		singleResult.setUsername( rs.getString( "username" ) );
+		singleResult.setCourse( rs.getString( "course" ) );
 		singleResult.setRoles( rs.getString( "roles" ) );
 		singleResult.setEmail( rs.getString( "email" ) );
 		singleResult.setPhone( rs.getString( "phone" ) );
