@@ -1,6 +1,5 @@
 package it.vkod.testy.views.student;
 
-
 import it.vkod.testy.data.dto.ExamDto;
 import it.vkod.testy.data.dto.QuestionDto;
 import it.vkod.testy.data.dto.TaskDto;
@@ -22,6 +21,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import org.slf4j.Logger;
@@ -29,21 +29,25 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@PageTitle( StudentNewExamView.TITLE )
-@Route( value = StudentNewExamView.ROUTE )
+@PageTitle(StudentNewExamView.TITLE)
+@Route(value = StudentNewExamView.ROUTE)
 @PermitAll
-public class StudentNewExamView extends AbstractView implements HasUrlParameter< String > {
+public class StudentNewExamView extends AbstractView implements HasUrlParameter<String> {
 
-	private static final Logger logger = LoggerFactory.getLogger( StudentNewExamView.class );
+	private static final Logger logger = LoggerFactory.getLogger(StudentNewExamView.class);
 
 	public static final String TITLE = "Student Exam";
 	public static final String ROUTE = "student/exam";
+	public static final Long DURATION_IN_MINUTES_PER_QUESTION = 4L;
 
 	private final IExamService examService;
 	private final IStudentService studentService;
@@ -51,14 +55,12 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 	private final VStepper stepper;
 	private final VerticalLayout examStarterLayout;
-	private final Label examCodeLabel;
-	private final TextField examCodeField;
-	private final Label examTimerLabel;
 	private final SimpleTimer examTimer;
 	private final Button startExamButton;
+	private final Select<String> examSelection;
 
-
-	public StudentNewExamView( IExamService examService, IStudentService studentService, final AuthenticatedUser authenticatedUser ) {
+	public StudentNewExamView(IExamService examService, IStudentService studentService,
+			final AuthenticatedUser authenticatedUser) {
 
 		this.examService = examService;
 		this.studentService = studentService;
@@ -66,204 +68,212 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 		this.stepper = new VStepper();
 		this.examStarterLayout = new VerticalLayout();
-		this.examCodeLabel = new Label( "Exam Code" );
-		this.examCodeField = new TextField();
-		this.examTimerLabel = new Label( "Exam timer will be started as soon as you click on 'Start Exam' button.." );
 		this.examTimer = new SimpleTimer();
-		this.startExamButton = new Button( "Start Exam" );
+		this.startExamButton = new Button("Start Exam");
 
-		this.examTimer.getStyle().set( "font-size", "24pt" );
-		this.examTimer.setMinutes( true );
-		this.examTimer.setFractions( false );
-		this.examTimer.addTimerEndEvent( onTimeOutEvent -> stopExamAndDisableSubmissions( this.examCodeField.getValue(), getCurrentSession().getSession().getId() ) );
+		// FETCH ALL EXAMS BY STUDENT AND GROUP THEM BY EXAM_CODE
+
+		final var codes = this.examService.selectAllExamsGroupedByCode();
+
+		this.examSelection = new Select<>(codes.keySet().toArray(String[]::new));
+
+		this.examTimer.getStyle().set("font-size", "24pt");
+		this.examTimer.setMinutes(true);
+		this.examTimer.setFractions(false);
+		this.examTimer.addTimerEndEvent(onTimeOutEvent -> stopExamAndDisableSubmissions(this.examSelection.getValue(),
+				getCurrentSession().getSession().getId()));
 
 		initParentStyle();
+		initStepperStyle();
 
 		final var userBeingSearched = new Object() {
 			String userId = null;
 		};
 
-		Optional< UserEntity > oUser = Optional.empty();
+		Optional<UserEntity> oUser = Optional.empty();
 		try {
-			oUser = authenticatedUser.get();
-		} catch ( SQLException e ) {
+			oUser = this.authenticatedUser.get();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		if ( oUser.isPresent() ) {
+		if (oUser.isPresent()) {
 			final var user = oUser.get();
 			userBeingSearched.userId = user.getId();
 		}
 
-		final var fetchedStudent = studentService.fetchStudentById( userBeingSearched.userId );
+		final var fetchedStudent = this.studentService.fetchStudentById(userBeingSearched.userId);
 
-		this.startExamButton.addClickListener( onClick -> {
-			this.startExamButton.setText( onClick.getClickCount() % 2 == 0 ? "Stop" : "Start" );
-			if ( onClick.getClickCount() == 1 ) {
-				startExamEvent();
-			} else {
-				this.stepper.getNext().setEnabled( this.stepper.getNext().getElement().isEnabled() );
-			}
-		} );
+		if (fetchedStudent.isEmpty()
+				|| fetchedStudent.get().getCourse().name().equalsIgnoreCase(this.examSelection.getValue())) {
+			getNotifications().add(new DefaultNotification(
+					"This user does not exists OR not authorized to start the exam: " + this.examSelection.getValue(), Priority.ERROR));
+		} else {
+			this.startExamButton.addClickListener(onClick -> {
+				this.startExamButton.setText(onClick.getClickCount() % 2 == 0 ? "Stop" : "Start");
+				if (onClick.getClickCount() == 1) {
+					startExamEvent(this.examSelection.getValue());
+				} else {
+					this.stepper.getNext().setEnabled(this.stepper.getNext().getElement().isEnabled());
+				}
+			});
+		}
 
-		initStepperStyle();
-
-		this.examStarterLayout.add( this.examCodeLabel, this.examCodeField, this.startExamButton, this.examTimerLabel, this.examTimer );
-		this.stepper.addStep( this.examStarterLayout );
-		add( this.stepper );
+		this.examStarterLayout.add(this.startExamButton, this.examTimer);
+		this.stepper.addStep(this.examStarterLayout);
+		add(this.stepper);
 	}
-
 
 	private void initStepperStyle() {
 
 		stepper.setSizeFull();
-		stepper.getNext().setIcon( VaadinIcon.ARROW_RIGHT.create() );
-		stepper.getBack().setIcon( VaadinIcon.ARROW_LEFT.create() );
-		stepper.getFinish().setIcon( VaadinIcon.CHECK.create() );
+		stepper.getNext().setIcon(VaadinIcon.ARROW_RIGHT.create());
+		stepper.getBack().setIcon(VaadinIcon.ARROW_LEFT.create());
+		stepper.getFinish().setIcon(VaadinIcon.CHECK.create());
 
 		examStarterLayout.setWidthFull();
-		examStarterLayout.setJustifyContentMode( JustifyContentMode.CENTER );
+		examStarterLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
 	}
 
+	private void startExamEvent(final String code) {
 
-	private void startExamEvent() {
-
-		final var code = examCodeField.getValue();
-		final var patchResponses = examService.patchSession( code, getCurrentSession().getSession().getId() );
-		if ( patchResponses != null && !patchResponses.isEmpty() ) {
-			final var examsResponse = examService.selectAllByCode( code );
-			if ( examsResponse != null && !examsResponse.isEmpty() ) {
+		final var patchResponses = examService.patchSession(code, getCurrentSession().getSession().getId());
+		if (patchResponses != null && !patchResponses.isEmpty()) {
+			final var examsResponse = examService.selectAllByCode(code);
+			if (examsResponse != null && !examsResponse.isEmpty()) {
 
 				examsResponse
 						.stream()
-						.collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) )
-						.forEach( ( questionDTO, examDTOs ) -> stepper.addStep(
-										"Question", initSingleQuestionLayout(
-												questionDTO, examDTOs.stream().map( ExamDto::getTask )
-														.collect( Collectors.toUnmodifiableList() ) )
-								)
-						);
+						.collect(Collectors.groupingBy(examDto -> examDto.getTask().getQuestion()))
+						.forEach((questionDTO, examDTOs) -> stepper.addStep(
+								"Question", initSingleQuestionLayout(
+										questionDTO, examDTOs.stream().map(ExamDto::getTask)
+												.collect(Collectors.toUnmodifiableList()))));
 
 				examTimer.setStartTime(
-						TimeUnit.MINUTES.toSeconds( 3 ) *
-								examsResponse.stream().collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) ).keySet().size()
-				);
+						TimeUnit.MINUTES.toSeconds(DURATION_IN_MINUTES_PER_QUESTION) *
+								examsResponse.stream()
+										.collect(Collectors.groupingBy(examDto -> examDto.getTask().getQuestion()))
+										.keySet().size());
 				examTimer.start(); // START THE TIMER ..
 			}
 		}
 	}
 
-
-	private void stopExamAndDisableSubmissions( final String code, final String session ) {
+	private void stopExamAndDisableSubmissions(final String code, final String session) {
 
 		getNotifications().add(
-				new DefaultNotification( "EXAM " + code + " TIME IS OVER", "Exam stopped due timeout.. Current Session: " + session, Priority.HIGH ) );
-		this.stepper.getNext().setEnabled( false );
+				new DefaultNotification("EXAM " + code + " TIME IS OVER",
+						"Exam stopped due timeout.. Current Session: " + session, Priority.HIGH));
+		this.stepper.getNext().setEnabled(false);
 	}
 
-
-	private VerticalLayout initSingleQuestionLayout( QuestionDto question, List< TaskDto > tasks ) {
+	private VerticalLayout initSingleQuestionLayout(QuestionDto question, List<TaskDto> tasks) {
 
 		final var layout = new VerticalLayout();
-		layout.setId( String.valueOf( ( int ) System.currentTimeMillis() ) );
+		layout.setId(String.valueOf((int) System.currentTimeMillis()));
 
-		layout.add( new H3( question.getHeader() ) );
-		question.getContent().stream().map( Paragraph::new ).forEach( layout::add );
+		layout.add(new H3(question.getHeader()));
+		question.getContent().stream().map(Paragraph::new).forEach(layout::add);
 
-		final var choicesCheckBoxGroup = initTaskLayout( "Choices", question, tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.CHOICE ).collect( Collectors.toUnmodifiableList() ) );
-		final var todosCheckBoxGroup = initTaskLayout( "Task(s)", question, tasks.stream().filter( taskDto -> taskDto.getType() == TaskDto.Type.TODO ).collect( Collectors.toUnmodifiableList() ) );
-		layout.add( choicesCheckBoxGroup, todosCheckBoxGroup );
+		final var choicesCheckBoxGroup = initTaskLayout("Choices", question, tasks.stream()
+				.filter(taskDto -> taskDto.getType() == TaskDto.Type.CHOICE).collect(Collectors.toUnmodifiableList()));
+		final var todosCheckBoxGroup = initTaskLayout("Task(s)", question, tasks.stream()
+				.filter(taskDto -> taskDto.getType() == TaskDto.Type.TODO).collect(Collectors.toUnmodifiableList()));
+		layout.add(choicesCheckBoxGroup, todosCheckBoxGroup);
 
-		final var submitButton = new Button( "Submit", onClick -> {
+		final var submitButton = new Button("Submit", onClick -> {
 
-			if ( !todosCheckBoxGroup.isEmpty() && !todosCheckBoxGroup.getSelectedItems().isEmpty() ) {
+			if (!todosCheckBoxGroup.isEmpty() && !todosCheckBoxGroup.getSelectedItems().isEmpty()) {
 				final var selectedTodos = todosCheckBoxGroup.getValue();
-				todosCheckBoxGroup.setEnabled( false );
+				todosCheckBoxGroup.setEnabled(false);
 
-				final var patchCounter = new AtomicInteger( 0 );
-				for ( final var selectedTodo : selectedTodos ) {
-					final var examPatchResponse = examService.patchTask( selectedTodo.getId(), getCurrentSession().getSession().getId()
-							, true );
-					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
+				final var patchCounter = new AtomicInteger(0);
+				for (final var selectedTodo : selectedTodos) {
+					final var examPatchResponse = examService.patchTask(selectedTodo.getId(),
+							getCurrentSession().getSession().getId(), true);
+					if (examPatchResponse != null && !examPatchResponse.isEmpty()
+							&& !examPatchResponse.equalsIgnoreCase("-1")) {
 						patchCounter.getAndIncrement();
 					}
 				}
 
-				getNotifications().add( new DefaultNotification(
-						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " todo" : " todos" ) + " submitted" ) );
+				getNotifications().add(new DefaultNotification(
+						"Question Submitted", "Question with " + patchCounter.get()
+								+ (patchCounter.get() == 1 ? " todo" : " todos") + " submitted"));
 			}
 
-			if ( !choicesCheckBoxGroup.isEmpty() && !choicesCheckBoxGroup.getSelectedItems().isEmpty() ) {
+			if (!choicesCheckBoxGroup.isEmpty() && !choicesCheckBoxGroup.getSelectedItems().isEmpty()) {
 				final var selectedChoices = choicesCheckBoxGroup.getValue();
-				choicesCheckBoxGroup.setEnabled( false );
+				choicesCheckBoxGroup.setEnabled(false);
 
-				final var patchCounter = new AtomicInteger( 0 );
-				for ( final var selectedChoice : selectedChoices ) {
-					final var examPatchResponse = examService.patchTask( selectedChoice.getId(),
-							getCurrentSession().getSession().getId(), true );
-					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
+				final var patchCounter = new AtomicInteger(0);
+				for (final var selectedChoice : selectedChoices) {
+					final var examPatchResponse = examService.patchTask(selectedChoice.getId(),
+							getCurrentSession().getSession().getId(), true);
+					if (examPatchResponse != null && !examPatchResponse.isEmpty()
+							&& !examPatchResponse.equalsIgnoreCase("-1")) {
 						patchCounter.getAndIncrement();
 					}
 				}
 
-				getNotifications().add( new DefaultNotification(
-						"Question Submitted", "Question with " + patchCounter.get() + ( patchCounter.get() == 1 ? " choice" : " choices" ) + " submitted" ) );
+				getNotifications().add(new DefaultNotification(
+						"Question Submitted", "Question with " + patchCounter.get()
+								+ (patchCounter.get() == 1 ? " choice" : " choices") + " submitted"));
 			}
 
 			// disable button after submission ..
-			onClick.getSource().setEnabled( false );
+			onClick.getSource().setEnabled(false);
 
-		} );
-		submitButton.addThemeVariants( ButtonVariant.LUMO_PRIMARY );
+		});
+		submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-		layout.add( submitButton );
+		layout.add(submitButton);
 		return layout;
 
 	}
 
+	private CheckboxGroup<TaskDto> initTaskLayout(String labelText, QuestionDto question, List<TaskDto> tasks) {
 
-	private CheckboxGroup< TaskDto > initTaskLayout( String labelText, QuestionDto question, List< TaskDto > tasks ) {
+		final var checkboxGroup = new CheckboxGroup<TaskDto>();
+		checkboxGroup.setThemeName(RadioGroupVariant.LUMO_VERTICAL.getVariantName());
+		checkboxGroup.setRequired(true);
 
-		final var checkboxGroup = new CheckboxGroup< TaskDto >();
-		checkboxGroup.setThemeName( RadioGroupVariant.LUMO_VERTICAL.getVariantName() );
-		checkboxGroup.setRequired( true );
-
-		if ( tasks.isEmpty() ) {
-			checkboxGroup.setVisible( false );
+		if (tasks.isEmpty()) {
+			checkboxGroup.setVisible(false);
 			return checkboxGroup;
 		}
 
-		checkboxGroup.setId( labelText + "CheckboxGroup_" + question.getId() );
-		checkboxGroup.setItems( tasks );
-		final var correctTasksCount = tasks.stream().filter( choice -> choice.getWeight() > 0.00 ).count();
+		checkboxGroup.setId(labelText + "CheckboxGroup_" + question.getId());
+		checkboxGroup.setItems(tasks);
+		final var correctTasksCount = tasks.stream().filter(choice -> choice.getWeight() > 0.00).count();
 		final var allTasksCount = tasks.size();
 		checkboxGroup.setLabel(
-				labelText.contains( "Choice" ) ?
-						"Only" + correctTasksCount + " " + ( ( correctTasksCount <= 1 ) ? "choice is" : "choices are" ) + " correct from " + allTasksCount + " " + ( ( correctTasksCount <= 1 ) ? "choice" : "choices" ) :
-						allTasksCount + " to complete."
-		);
-		checkboxGroup.addSelectionListener( onSelect -> {
+				labelText.contains("Choice")
+						? "Only" + correctTasksCount + " " + ((correctTasksCount <= 1) ? "choice is" : "choices are")
+								+ " correct from " + allTasksCount + " "
+								+ ((correctTasksCount <= 1) ? "choice" : "choices")
+						: allTasksCount + " to complete.");
+		checkboxGroup.addSelectionListener(onSelect -> {
 			int noOfSelectedTodos = onSelect.getAllSelectedItems().size();
-			if ( noOfSelectedTodos > correctTasksCount ) {
+			if (noOfSelectedTodos > correctTasksCount) {
 				final var notificationMsg = "You cannot select more than " + correctTasksCount + " " + labelText + ".";
-				checkboxGroup.deselect( onSelect.getAddedSelection() );
-				getNotifications().add( new DefaultNotification( "Warning", notificationMsg, Priority.LOW ) );
+				checkboxGroup.deselect(onSelect.getAddedSelection());
+				getNotifications().add(new DefaultNotification("Warning", notificationMsg, Priority.LOW));
 			}
-		} );
+		});
 
 		return checkboxGroup;
 
 	}
 
-
 	private void initParentStyle() {
 
 		setSizeFull();
-		setPadding( false );
-		setJustifyContentMode( JustifyContentMode.CENTER );
+		setPadding(false);
+		setJustifyContentMode(JustifyContentMode.CENTER);
 	}
-
 
 	@Override
 	public String getViewName() {
@@ -271,16 +281,13 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 		return StudentNewExamView.ROUTE;
 	}
 
-
 	@Override
-	public void setParameter( BeforeEvent event, @OptionalParameter String parameter ) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 
-		if ( parameter != null ) {
+		if (parameter != null) {
 			Location location = event.getLocation();
 			QueryParameters queryParameters = location.getQueryParameters();
 
-			final var code = queryParameters.getParameters().get( "code" ).get( 0 );
-			this.examCodeField.setValue( code );
 		}
 	}
 

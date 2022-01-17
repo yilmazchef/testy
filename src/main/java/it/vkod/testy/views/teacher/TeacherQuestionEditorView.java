@@ -186,6 +186,8 @@ public class TeacherQuestionEditorView extends AbstractView {
 		return onFinishClick -> {
 
 			final var importedQuestions = batchImporter.batchImportQuestions(questions.toArray(QuestionDto[]::new));
+			// FLAT-MAPPING ALL QUESTIONS TO FIND EACH TASK APART BECAUSE THIS IS HOW EXAMS ARE GENERATED, 
+			// NOT FOR EACH QUESTION, BUT FOR EACH TASK
 			final var importedTasks = importedQuestions.stream().map(question -> batchImporter
 					.batchImportTasks(question.getId(), question.getTasks().toArray(TaskDto[]::new)))
 					.collect(Collectors.toUnmodifiableSet());
