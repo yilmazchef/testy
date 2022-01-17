@@ -119,7 +119,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 			});
 		}
 
-		this.examStarterLayout.add(this.startExamButton, this.examTimer);
+		this.examStarterLayout.add(this.examSelection, this.startExamButton, this.examTimer);
 		this.stepper.addStep(this.examStarterLayout);
 		add(this.stepper);
 	}
