@@ -13,6 +13,54 @@ USE testy_dev;
 -- DROP TABLE IF EXISTS testy_user;
 
 
+CREATE TABLE IF NOT EXISTS testy_user
+(
+    id            varchar(500) NOT NULL UNIQUE,
+    firstName     varchar(255),
+    lastName      varchar(255),
+    authenticated BIT(1) DEFAULT 1 DEFAULT FALSE,
+    roles         varchar(255) NOT NULL,
+    username      varchar(255) NOT NULL UNIQUE,
+    email         varchar(100) NULL,
+    phone         varchar(14)  NULL,
+    password      varchar(255) NOT NULL,
+    course        varchar(255) NOT NULL DEFAULT 'ONGEDEFINEERD',
+    activation    varchar(255) NOT NULL,
+    active        BIT(1) DEFAULT 1,
+    PRIMARY KEY (id)
+);
+
+
+CREATE TABLE IF NOT EXISTS testy_question
+(
+    id        VARCHAR(500) NOT NULL UNIQUE,
+    active    BIT(1) DEFAULT 1,
+    orderNo   INT,
+    header    TEXT(1000)   NOT NULL,
+    content   TEXT(1000)   NOT NULL,
+    weight    DECIMAL(8, 2),
+    teacherId VARCHAR(500) NOT NULL,
+    PRIMARY KEY (id),
+
+    CONSTRAINT testy_teacher_to_question
+        FOREIGN KEY (teacherId) REFERENCES testy_user (id)
+);
+
+CREATE TABLE IF NOT EXISTS testy_task
+(
+    id         varchar(500) NOT NULL UNIQUE,
+    active     BIT(1) DEFAULT 1,
+    orderNo    INT,
+    value      TEXT(1000)   NOT NULL,
+    weight     decimal(8, 2),
+    type       varchar(10)  NOT NULL,
+    questionId varchar(500) NOT NULL,
+    PRIMARY KEY (id),
+
+    CONSTRAINT testy_question_to_task
+        FOREIGN KEY (questionId) REFERENCES testy_question (id)
+);
+
 CREATE TABLE IF NOT EXISTS testy_exam
 (
     id          varchar(500) NOT NULL UNIQUE,
@@ -40,37 +88,6 @@ CREATE TABLE IF NOT EXISTS testy_exam
     
 );
 
-
-CREATE TABLE IF NOT EXISTS testy_task
-(
-    id         varchar(500) NOT NULL UNIQUE,
-    active     BIT(1) DEFAULT 1,
-    orderNo    INT,
-    value      TEXT(1000)   NOT NULL,
-    weight     decimal(8, 2),
-    type       varchar(10)  NOT NULL,
-    questionId varchar(500) NOT NULL,
-    PRIMARY KEY (id),
-
-    CONSTRAINT testy_question_to_task
-        FOREIGN KEY (questionId) REFERENCES testy_question (id)
-);
-
-
-CREATE TABLE IF NOT EXISTS testy_question
-(
-    id        VARCHAR(500) NOT NULL UNIQUE,
-    active    BIT(1) DEFAULT 1,
-    orderNo   INT,
-    header    TEXT(1000)   NOT NULL,
-    content   TEXT(1000)   NOT NULL,
-    weight    DECIMAL(8, 2),
-    teacherId VARCHAR(500) NOT NULL,
-    PRIMARY KEY (id),
-
-    CONSTRAINT testy_teacher_to_question
-        FOREIGN KEY (teacherId) REFERENCES testy_user (id)
-);
 
 CREATE TABLE IF NOT EXISTS testy_solution
 (
@@ -120,21 +137,4 @@ CREATE TABLE IF NOT EXISTS testy_tag
         FOREIGN KEY (questionId) REFERENCES testy_question (id) 
 );
 
-
-CREATE TABLE IF NOT EXISTS testy_user
-(
-    id            varchar(500) NOT NULL UNIQUE,
-    firstName     varchar(255),
-    lastName      varchar(255),
-    authenticated BIT(1) DEFAULT 1 DEFAULT FALSE,
-    roles         varchar(255) NOT NULL,
-    username      varchar(255) NOT NULL UNIQUE,
-    email         varchar(100) NULL,
-    phone         varchar(14)  NULL,
-    password      varchar(255) NOT NULL,
-    course        varchar(255) NOT NULL DEFAULT 'ONGEDEFINEERD',
-    activation    varchar(255) NOT NULL,
-    active        BIT(1) DEFAULT 1,
-    PRIMARY KEY (id)
-);
 
