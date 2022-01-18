@@ -28,10 +28,11 @@ spring:
         smtp.starttls.enable: true
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/testy_dev?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false}
-    username: ${SPRING_DATASOURCE_USERNAME:testy}
-    password: ${SPRING_DATASOURCE_PASSWORD:testy}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
   security:
     user:
       name: ${SPRING_SECURITY_USERNAME}
@@ -40,6 +41,7 @@ spring:
 
   application:
     name: testy-pwa
+    
   sql:
     init:
       mode: always
