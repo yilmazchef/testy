@@ -8,12 +8,12 @@ services:
     networks:
       - checknet
     ports:
-      - "3443:3306"
+      - "3888:3306"
     environment:
       - MYSQL_DATABASE=testy_prod
       - MYSQL_USER=testy
       - MYSQL_PASSWORD=testy
-      - MYSQL_ROOT_PASSWORD=1a2z3e4a5z6e7a8z9e 
+      - MYSQL_ROOT_PASSWORD=testy 
       - TZ=Europe/Brussels
     volumes:
         - ./dump:/docker-entrypoint-initdb.d
@@ -25,7 +25,7 @@ services:
     networks:
       - checknet
     ports:
-      - 9000:8080
+      - 1888:8080
 
   app:
     image: yilmazchef/testy:latest
@@ -37,10 +37,10 @@ services:
       - checknet
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/testy_prod
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 1a2z3e4a5z6e7a8z9e
+      SPRING_DATASOURCE_USERNAME: testy
+      SPRING_DATASOURCE_PASSWORD: testy
     ports:
-      - "443:8443"
+      - "8888:8080"
 
 networks:
   checknet:
