@@ -258,6 +258,9 @@
     </dependencies>
 
     <build>
+
+        <finalName>testy</finalName>
+
         <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
             <plugin>
