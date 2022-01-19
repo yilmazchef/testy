@@ -7,18 +7,19 @@ services:
     image: mysql:latest
     restart: unless-stopped
     networks:
-      - check_net
+      - testy_net
     ports:
-      - "3888:3306"
+      - "3999:3306"
     environment:
       - MYSQL_DATABASE=testy_dev
       - MYSQL_USER=testy
       - MYSQL_PASSWORD=testy
       - MYSQL_ROOT_PASSWORD=toor 
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "testy_db_server"]
+      timeout: 10s
       retries: 10
+      
   testy_db_admin:
     container_name: testy_db_admin
     image: adminer
@@ -29,9 +30,9 @@ services:
       testy_db_server:
         condition: service_healthy
     networks:
-      - check_net
+      - testy_net
     ports:
-      - 1888:8080
+      - "1999:8080"
 
   testy_app:
     container_name: testy_app
@@ -43,15 +44,14 @@ services:
       testy_db_server:
         condition: service_healthy
     networks:
-      - check_net
+      - testy_net
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://testy_db_server:3306/testy_dev?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: toor
     ports:
-      - "8888:8080"
+      - "9999:8080"
 
 networks:
-  check_net:
-    attachable: true
+  testy_net:
 
