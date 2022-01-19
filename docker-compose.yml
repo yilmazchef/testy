@@ -15,10 +15,6 @@ services:
       - MYSQL_USER=testy
       - MYSQL_PASSWORD=testy
       - MYSQL_ROOT_PASSWORD=toor 
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "testy_db_server"]
-      timeout: 10s
-      retries: 10
       
   testy_db_admin:
     container_name: testy_db_admin
@@ -27,8 +23,7 @@ services:
     links:
       - "testy_db_server:testy_db_server"
     depends_on:
-      testy_db_server:
-        condition: service_healthy
+      - testy_db_server
     networks:
       - testy_net
     ports:
@@ -41,8 +36,7 @@ services:
     links:
     - "testy_db_server:testy_db_server"
     depends_on:
-      testy_db_server:
-        condition: service_healthy
+      - testy_db_server
     networks:
       - testy_net
     environment:
