@@ -17,7 +17,7 @@ public interface IExamService {
 
     String patch(final String examId, final Boolean isSelected);
 
-    String patchTask(final String taskId, final String session, final Boolean isSelected);
+    String patchTask(final String examCode, final String taskId, final String session, final Boolean isSelected);
 
     List<String> patchSession(final String examCode, final String session);
 

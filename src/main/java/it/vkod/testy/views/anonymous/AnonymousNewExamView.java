@@ -96,7 +96,7 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
 				.collect( Collectors.groupingBy( examDto -> examDto.getTask().getQuestion() ) )
 				.forEach( ( questionDto, examDtos ) -> examStepper.addStep(
 								"Question", initSingleQuestionLayout(
-										questionDto, examDtos.stream().map( ExamDto::getTask ).collect( Collectors.toUnmodifiableList() ) )
+										examCode, questionDto, examDtos.stream().map( ExamDto::getTask ).collect( Collectors.toUnmodifiableList() ) )
 						)
 				);
 
@@ -104,7 +104,7 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
 	}
 
 
-	private VerticalLayout initSingleQuestionLayout( QuestionDto question, List< TaskDto > tasks ) {
+	private VerticalLayout initSingleQuestionLayout( final String examCode, QuestionDto question, List< TaskDto > tasks ) {
 
 		final var layout = new VerticalLayout();
 		layout.setId( String.valueOf( ( int ) System.currentTimeMillis() ) );
@@ -119,12 +119,12 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
 		final var submitButton = new Button( "Submit", onClick -> {
 
 			if ( !todosCheckBoxGroup.isEmpty() && !todosCheckBoxGroup.getSelectedItems().isEmpty() ) {
-				final var selectedTodos = todosCheckBoxGroup.getValue();
+				final var selectedTodos = todosCheckBoxGroup.getSelectedItems();
 				todosCheckBoxGroup.setEnabled( false );
 
 				final var patchCounter = new AtomicInteger( 0 );
 				for ( final var selectedTodo : selectedTodos ) {
-					final var examPatchResponse = examService.patchTask( selectedTodo.getId(), currentSession.getSession().getId(), true );
+					final var examPatchResponse = examService.patchTask( examCode, selectedTodo.getId(), currentSession.getSession().getId(), true );
 					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
 						patchCounter.getAndIncrement();
 					}
@@ -140,7 +140,7 @@ public class AnonymousNewExamView extends AbstractView implements HasUrlParamete
 
 				final var patchCounter = new AtomicInteger( 0 );
 				for ( final var selectedChoice : selectedChoices ) {
-					final var examPatchResponse = examService.patchTask( selectedChoice.getId(), currentSession.getSession().getId(), true );
+					final var examPatchResponse = examService.patchTask( examCode, selectedChoice.getId(), currentSession.getSession().getId(), true );
 					if ( examPatchResponse != null && !examPatchResponse.isEmpty() && !examPatchResponse.equalsIgnoreCase( "-1" ) ) {
 						patchCounter.getAndIncrement();
 					}

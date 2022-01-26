@@ -63,6 +63,15 @@ public class ExamRepository implements IExamRepository {
 
 
 	@Override
+	public Boolean existsByTask( String examCode, String taskId, String session ) {
+
+		String sql = "SELECT COUNT(*) FROM testy_exam WHERE code = ? AND taskId = ? AND session = ? AND active = TRUE";
+		EXAM_LOGGER.info( sql );
+		Long count = jdbcTemplate.queryForObject( sql, Long.class, examCode, taskId, session );
+		return count > 0;
+	}
+
+	@Override
 	public Boolean existsByTask( String taskId, String session ) {
 
 		String sql = "SELECT COUNT(*) FROM testy_exam WHERE taskId = ? AND session = ? AND active = TRUE";
@@ -187,7 +196,7 @@ public class ExamRepository implements IExamRepository {
 
 
 	@Override
-	public String patchTask( String taskId, String session, Boolean isSelected ) throws SQLException {
+	public String patchTask(final String examCode, String taskId, String session, Boolean isSelected ) throws SQLException {
 
 		if ( existsByTask( taskId, session ).equals( Boolean.FALSE ) ) {
 			throw new SQLException( "Task does NOT exists." );
@@ -197,10 +206,10 @@ public class ExamRepository implements IExamRepository {
 				" SET " +
 				"selected = ?" +
 				" WHERE " +
-				"taskId = ? AND session = ?";
+				"code = ? AND taskId = ? AND session = ?";
 		EXAM_LOGGER.info( sql );
 		int updateCount = jdbcTemplate.update( sql,
-				isSelected, taskId, session
+				isSelected, examCode, taskId, session
 		);
 
 		if ( updateCount <= 0 ) {
@@ -237,7 +246,7 @@ public class ExamRepository implements IExamRepository {
 
 
 	@Override
-	public Set< String > patchTasks( Set< String > taskIdSet, String session, Boolean isSelected ) throws SQLException {
+	public Set< String > patchTasks( final String examCode, Set< String > taskIdSet, String session, Boolean isSelected ) throws SQLException {
 
 		final var nonExistingTasksCount = taskIdSet
 				.stream()
@@ -250,7 +259,7 @@ public class ExamRepository implements IExamRepository {
 
 		Set< String > set = new HashSet<>();
 		for ( String taskId : taskIdSet ) {
-			String s = patchTask( taskId, session, isSelected );
+			String s = patchTask( examCode, taskId, session, isSelected );
 			if ( s != null ) {
 				set.add( s );
 			}

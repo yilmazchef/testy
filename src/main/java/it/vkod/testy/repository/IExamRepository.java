@@ -19,7 +19,9 @@ public interface IExamRepository {
 
     Boolean exists(final String session, final String studentId, final String questionId) throws SQLException;
 
-    Boolean existsByTask(final String taskId, final String session) throws SQLException;
+    Boolean existsByTask( String examCode, String taskId, String session );
+
+    Boolean existsByTask( final String taskId, final String session) throws SQLException;
 
     Boolean existsByCode(final String code) throws SQLException;
 
@@ -29,11 +31,11 @@ public interface IExamRepository {
 
     String patch(final String examId, final Boolean isSelected) throws SQLException;
 
-    String patchTask(final String taskId, final String session, final Boolean isSelected) throws SQLException;
+    String patchTask(final String examCode, final String taskId, final String session, final Boolean isSelected) throws SQLException;
 
     List<String> patchSession(final String examCode, final String session) throws SQLException;
 
-    Set<String> patchTasks(final Set<String> taskIdSet, final String session, final Boolean isSelected) throws SQLException;
+    Set<String> patchTasks(final String examCode, final Set<String> taskIdSet, final String session, final Boolean isSelected) throws SQLException;
 
     String delete(final String id) throws SQLException;
 

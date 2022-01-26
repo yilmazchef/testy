@@ -129,14 +129,14 @@ public class ExamService implements IExamService {
 
 
 	@Override
-	public String patchTask( final String taskId, final String session, final Boolean isSelected ) {
+	public String patchTask( final String examCode, final String taskId, final String session, final Boolean isSelected ) {
 
 		final var eId = new Object() {
 			String patchedTaskIdByExam = null;
 		};
 
 		try {
-			eId.patchedTaskIdByExam = examRepository.patchTask( taskId, session, isSelected );
+			eId.patchedTaskIdByExam = examRepository.patchTask( examCode, taskId, session, isSelected );
 			return eId.patchedTaskIdByExam;
 
 		} catch ( SQLException sqlException ) {

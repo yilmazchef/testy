@@ -136,18 +136,18 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 	}
 
-	private void startExamEvent(final String code) {
+	private void startExamEvent(final String examCode) {
 
-		final var patchResponses = examService.patchSession(code, getCurrentSession().getSession().getId());
+		final var patchResponses = examService.patchSession(examCode, getCurrentSession().getSession().getId());
 		if (patchResponses != null && !patchResponses.isEmpty()) {
-			final var examsResponse = examService.selectAllByCode(code);
+			final var examsResponse = examService.selectAllByCode(examCode);
 			if (examsResponse != null && !examsResponse.isEmpty()) {
 
 				examsResponse
 						.stream()
 						.collect(Collectors.groupingBy(examDto -> examDto.getTask().getQuestion()))
 						.forEach((questionDTO, examDTOs) -> stepper.addStep(
-								"Question", initSingleQuestionLayout(
+								"Question", initSingleQuestionLayout(examCode,
 										questionDTO, examDTOs.stream().map(ExamDto::getTask)
 												.collect(Collectors.toUnmodifiableList()))));
 
@@ -169,7 +169,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 		this.stepper.getNext().setEnabled(false);
 	}
 
-	private VerticalLayout initSingleQuestionLayout(QuestionDto question, List<TaskDto> tasks) {
+	private VerticalLayout initSingleQuestionLayout(String examCode, QuestionDto question, List<TaskDto> tasks) {
 
 		final var layout = new VerticalLayout();
 		layout.setId(String.valueOf((int) System.currentTimeMillis()));
@@ -186,12 +186,12 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 		final var submitButton = new Button("Submit", onClick -> {
 
 			if (!todosCheckBoxGroup.isEmpty() && !todosCheckBoxGroup.getSelectedItems().isEmpty()) {
-				final var selectedTodos = todosCheckBoxGroup.getValue();
+				final var selectedTodos = todosCheckBoxGroup.getSelectedItems();
 				todosCheckBoxGroup.setEnabled(false);
 
 				final var patchCounter = new AtomicInteger(0);
 				for (final var selectedTodo : selectedTodos) {
-					final var examPatchResponse = examService.patchTask(selectedTodo.getId(),
+					final var examPatchResponse = examService.patchTask(examCode, selectedTodo.getId(),
 							getCurrentSession().getSession().getId(), true);
 					if (examPatchResponse != null && !examPatchResponse.isEmpty()
 							&& !examPatchResponse.equalsIgnoreCase("-1")) {
@@ -210,7 +210,7 @@ public class StudentNewExamView extends AbstractView implements HasUrlParameter<
 
 				final var patchCounter = new AtomicInteger(0);
 				for (final var selectedChoice : selectedChoices) {
-					final var examPatchResponse = examService.patchTask(selectedChoice.getId(),
+					final var examPatchResponse = examService.patchTask(examCode, selectedChoice.getId(),
 							getCurrentSession().getSession().getId(), true);
 					if (examPatchResponse != null && !examPatchResponse.isEmpty()
 							&& !examPatchResponse.equalsIgnoreCase("-1")) {
