@@ -265,7 +265,12 @@
     "lit": "$lit",
     "chokidar": "$chokidar",
     "@vaadin/lit-renderer": "$@vaadin/lit-renderer",
-    "line-awesome": "$line-awesome"
+    "line-awesome": "$line-awesome",
+    "@granite-elements/granite-qrcode-scanner": "$@granite-elements/granite-qrcode-scanner",
+    "@zxing/browser": "$@zxing/browser",
+    "@zxing/library": "$@zxing/library",
+    "apexcharts": "$apexcharts",
+    "onecolor": "$onecolor"
   },
   "vaadin": {
     "dependencies": {
