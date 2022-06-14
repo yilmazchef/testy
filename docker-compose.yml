@@ -1,51 +1,53 @@
-version: '3.3'
-
+version: "3.9"
 services:
 
-  testy_db_server:
-    container_name: testy_db_server
-    image: mysql:latest
-    restart: unless-stopped
-    networks:
-      - testy_net
+  testy_dev_appserver:
+    build: .
     ports:
-      - "3999:3306"
-    environment:
-      - MYSQL_DATABASE=testy_dev
-      - MYSQL_USER=testy
-      - MYSQL_PASSWORD=testy
-      - MYSQL_ROOT_PASSWORD=toor 
-      
-  testy_db_admin:
-    container_name: testy_db_admin
-    image: adminer
-    restart: always
-    links:
-      - "testy_db_server:testy_db_server"
+      - "80:8080"
     depends_on:
-      - "testy_db_server"
+      - testy_dev_database_server
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://testy_dev_database_server:5432/testydb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     networks:
-      - testy_net
-    ports:
-      - "1999:8080"
+      - testy_development_network
+    volumes:
+      - testy_application_volume:/var/lib/testy
 
-  testy_app:
-    container_name: testy_app
-    image: yilmazchef/testy:latest
-    restart: always
-    links:
-    - "testy_db_server:testy_db_server"
-    depends_on:
-      - "testy_db_server"
-    networks:
-      - testy_net
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://testy_db_server:3306/testy_dev?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: toor
+  testy_dev_database_server:
+    image: postgres:latest
     ports:
-      - "9999:8080"
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=testydb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - testy_development_network
+    volumes:
+      - testy_database_volume:/var/lib/postgresql/data
+
+  testy_dev_database_admin:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "9090:8080"
+    networks:
+      - testy_development_network
 
 networks:
-  testy_net:
+  testy_production_network:
+  testy_development_network:
 
+
+volumes:
+  testy_database_volume: {}
+  testy_application_volume: {}

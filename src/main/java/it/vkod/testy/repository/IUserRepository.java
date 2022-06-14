@@ -1,12 +1,11 @@
 package it.vkod.testy.repository;
 
-import it.vkod.testy.data.dto.CourseDto;
-import it.vkod.testy.data.entity.UserEntity;
-import it.vkod.testy.data.index.UserFilter;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+
+import it.vkod.testy.data.entity.UserEntity;
+import it.vkod.testy.data.index.UserFilter;
 
 public interface IUserRepository {
 
