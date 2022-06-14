@@ -1,26 +1,26 @@
 version: "3.9"
 services:
 
-  testy_dev_appserver:
+  app:
     build: .
     ports:
-      - "80:8080"
+      - "8080"
     depends_on:
-      - testy_dev_database_server
+      - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://testy_dev_database_server:5432/testydb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/testydb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     networks:
-      - testy_development_network
+      - devnet
     volumes:
-      - testy_application_volume:/var/lib/testy
+      - devvol:/var/lib/testy
 
-  testy_dev_database_server:
+  db:
     image: postgres:latest
     ports:
-      - "5432:5432"
+      - "5432"
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -31,23 +31,23 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - testy_development_network
+      - devnet
     volumes:
-      - testy_database_volume:/var/lib/postgresql/data
+      - dbvol:/var/lib/postgresql/data
 
-  testy_dev_database_admin:
+  dba:
     image: adminer:latest
     restart: always
     ports:
-      - "9090:8080"
+      - "8080"
     networks:
-      - testy_development_network
+      - devnet
 
 networks:
-  testy_production_network:
-  testy_development_network:
+  pronet:
+  devnet:
 
 
 volumes:
-  testy_database_volume: {}
-  testy_application_volume: {}
+  dbvol: {}
+  devvol: {}

@@ -266,3 +266,5 @@ fabric.properties
 /node/
 /.gradle/
 .factorypath
+
+.fake
